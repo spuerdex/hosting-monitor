@@ -1,0 +1,12 @@
+[Unit]
+Description=Run DiGiT Hosting Admin Status Fetcher every minute
+
+[Timer]
+OnBootSec=30s
+OnUnitActiveSec=60s
+AccuracySec=5s
+Persistent=true
+Unit=digit-hosting-admin-fetch.service
+
+[Install]
+WantedBy=timers.target
