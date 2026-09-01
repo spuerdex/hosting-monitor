@@ -1,0 +1,10 @@
+/.user.ini
+
+/storage/cache/*
+!/storage/cache/.gitkeep
+
+/storage/logs/*
+!/storage/logs/.gitkeep
+
+# aaPanel managed
+/.htaccess
