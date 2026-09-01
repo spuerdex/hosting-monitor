@@ -8,3 +8,5 @@
 
 # aaPanel managed
 /.htaccess
+/public/.user.ini
+/public/.user.ini
