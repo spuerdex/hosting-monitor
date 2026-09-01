@@ -1,5 +1,6 @@
 import json
 import os
+import subprocess
 from pathlib import Path
 
 
@@ -17,6 +18,25 @@ REQUIRED_KEYS = {
     "backup",
     "students",
 }
+
+
+SSH_COMMAND = [
+    "/usr/bin/ssh",
+    "-T",
+    "-i",
+    "/etc/digit-hosting-admin/ssh/id_ed25519",
+    "-o",
+    "BatchMode=yes",
+    "-o",
+    "IdentitiesOnly=yes",
+    "-o",
+    "ConnectTimeout=5",
+    "-o",
+    "StrictHostKeyChecking=yes",
+    "-o",
+    "UserKnownHostsFile=/etc/digit-hosting-admin/ssh/known_hosts",
+    "hostingportal@10.1.161.23",
+]
 
 
 def validate_status(doc: dict) -> dict:
@@ -73,7 +93,48 @@ def write_atomic(
         encoding="utf-8",
     )
 
+    os.chmod(
+        temp,
+        0o640,
+    )
+
     os.replace(
         temp,
         destination,
     )
+
+
+def fetch_and_store(
+    destination: Path,
+    runner=subprocess.run,
+) -> dict:
+    result = runner(
+        SSH_COMMAND,
+        text=True,
+        capture_output=True,
+        check=False,
+        timeout=10,
+    )
+
+    if result.returncode != 0:
+        raise StatusValidationError(
+            "SSH status request failed"
+        )
+
+    try:
+        doc = json.loads(
+            result.stdout
+        )
+    except json.JSONDecodeError as exc:
+        raise StatusValidationError(
+            "invalid JSON returned by hosting server"
+        ) from exc
+
+    validated = validate_status(doc)
+
+    write_atomic(
+        destination,
+        validated,
+    )
+
+    return validated

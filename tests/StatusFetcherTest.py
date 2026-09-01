@@ -88,3 +88,126 @@ class StatusFetcherTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+import os
+from unittest.mock import Mock
+
+from ops.status_fetcher import fetch_and_store
+
+
+class FetchAndStoreTest(unittest.TestCase):
+
+    def test_write_atomic_sets_mode_0640(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            destination = Path(tmp) / "status.json"
+
+            write_atomic(
+                destination,
+                VALID,
+            )
+
+            mode = (
+                destination.stat().st_mode
+                & 0o777
+            )
+
+            self.assertEqual(
+                mode,
+                0o640,
+            )
+
+    def test_fetch_and_store_validates_and_saves_json(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            destination = Path(tmp) / "status.json"
+
+            fake_runner = Mock()
+
+            fake_runner.return_value = Mock(
+                returncode=0,
+                stdout=json.dumps(VALID),
+                stderr="",
+            )
+
+            result = fetch_and_store(
+                destination=destination,
+                runner=fake_runner,
+            )
+
+            self.assertEqual(
+                result["schema_version"],
+                1,
+            )
+
+            saved = json.loads(
+                destination.read_text(
+                    encoding="utf-8"
+                )
+            )
+
+            self.assertEqual(
+                saved,
+                VALID,
+            )
+
+    def test_fetch_and_store_does_not_replace_cache_on_bad_json(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            destination = Path(tmp) / "status.json"
+
+            write_atomic(
+                destination,
+                VALID,
+            )
+
+            before = destination.read_text(
+                encoding="utf-8"
+            )
+
+            fake_runner = Mock()
+
+            fake_runner.return_value = Mock(
+                returncode=0,
+                stdout="{broken",
+                stderr="",
+            )
+
+            with self.assertRaises(
+                StatusValidationError
+            ):
+                fetch_and_store(
+                    destination=destination,
+                    runner=fake_runner,
+                )
+
+            after = destination.read_text(
+                encoding="utf-8"
+            )
+
+            self.assertEqual(
+                before,
+                after,
+            )
+
+    def test_fetch_and_store_rejects_ssh_failure(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            destination = Path(tmp) / "status.json"
+
+            fake_runner = Mock()
+
+            fake_runner.return_value = Mock(
+                returncode=255,
+                stdout="",
+                stderr="connection failed",
+            )
+
+            with self.assertRaises(
+                StatusValidationError
+            ):
+                fetch_and_store(
+                    destination=destination,
+                    runner=fake_runner,
+                )
+
+            self.assertFalse(
+                destination.exists()
+            )
