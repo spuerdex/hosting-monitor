@@ -10,3 +10,7 @@
 /.htaccess
 /public/.user.ini
 /public/.user.ini
+
+# Python cache
+__pycache__/
+*.py[cod]
