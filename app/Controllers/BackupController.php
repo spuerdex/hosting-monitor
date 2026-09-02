@@ -12,89 +12,174 @@ final class BackupController
         array $user,
         array $status
     ): string {
-        $backup = $status['backup'] ?? [];
+        $backup =
+            $status['backup']
+            ?? [];
 
-        $last = $backup['last_backup']
+        $last =
+            $backup['last_backup']
             ?? null;
 
-        $bytes = $backup['size_bytes']
+        $bytes =
+            $backup['size_bytes']
             ?? null;
 
-        $available = $last !== null;
+        $available =
+            $last !== null;
 
-        $lastLabel = htmlspecialchars(
-            (string)(
+        $lastLabel =
+            self::formatDateTime(
                 $last
-                ?? 'ยังไม่มีข้อมูล'
-            ),
-            ENT_QUOTES,
-            'UTF-8'
-        );
+            );
 
-        $size = $bytes !== null
+        $size =
+            $bytes !== null
             ? number_format(
-                ((int)$bytes) / 1048576,
+                ((int)$bytes)
+                / 1048576,
                 2
             ) . ' MB'
             : 'ไม่ทราบ';
 
-        $statusBadge = $available
-            ? '<span class="badge badge-ok">Available</span>'
-            : '<span class="badge badge-bad">Unavailable</span>';
+        $statusText =
+            $available
+            ? 'Available'
+            : 'Unavailable';
 
         $content = <<<HTML
-<div class="page-header">
-<h1 class="page-title">Backup</h1>
+<div class="page-heading">
 
-<p class="page-description">
-สถานะ Backup ของ Student Hosting
-</p>
-</div>
+<div>
+    <h2 class="page-title">
+        Backup Overview
+    </h2>
 
-<div class="cards">
-
-<div class="card">
-<div class="card-label">Backup Status</div>
-<div class="card-value">
-{$statusBadge}
-</div>
-</div>
-
-<div class="card">
-<div class="card-label">Backup Size</div>
-<div class="card-value">{$size}</div>
+    <p class="page-description">
+        ตรวจสอบ Backup ล่าสุด
+        และนโยบายการสำรองข้อมูล
+    </p>
 </div>
 
 </div>
+
+
+<section class="surface backup-hero">
+
+<div>
+
+    <div class="backup-hero-label">
+        Backup Status
+    </div>
+
+    <h2 class="backup-hero-title">
+        {$statusText}
+    </h2>
+
+    <p class="backup-hero-sub">
+        Last Backup:
+        {$lastLabel}
+    </p>
+
+</div>
+
+
+<div class="backup-size">
+
+    <strong>
+        {$size}
+    </strong>
+
+    <span>
+        Latest backup size
+    </span>
+
+</div>
+
+</section>
+
+
+<div class="backup-policy-grid">
+
+<div class="surface policy-card">
+
+    <div class="policy-icon">
+        ⏱
+    </div>
+
+    <div class="policy-label">
+        Automatic Backup
+    </div>
+
+    <div class="policy-value">
+        ทุกวัน เวลา 02:00 น.
+    </div>
+
+</div>
+
+
+<div class="surface policy-card">
+
+    <div class="policy-icon">
+        14
+    </div>
+
+    <div class="policy-label">
+        Retention
+    </div>
+
+    <div class="policy-value">
+        14 วัน
+    </div>
+
+</div>
+
+
+<div class="surface policy-card">
+
+    <div class="policy-icon">
+        ↻
+    </div>
+
+    <div class="policy-label">
+        Old Backup Cleanup
+    </div>
+
+    <div class="policy-value">
+        ทุกวัน เวลา 02:30 น.
+    </div>
+
+</div>
+
+</div>
+
 
 <div class="section">
 
-<div class="card info-list">
+<div class="surface recent-panel">
 
-<div class="info-row">
-<span>Last Backup</span>
-<strong>{$lastLabel}</strong>
-</div>
+    <div class="info-item">
 
-<div class="info-row">
-<span>Automatic Backup</span>
-<strong>ทุกวัน เวลา 02:00 น.</strong>
-</div>
+        <span class="info-label">
+            Last Backup
+        </span>
 
-<div class="info-row">
-<span>Retention</span>
-<strong>14 วัน</strong>
-</div>
+        <strong class="info-value">
+            {$lastLabel}
+        </strong>
 
-<div class="info-row">
-<span>Old Backup Cleanup</span>
-<strong>ทุกวัน เวลา 02:30 น.</strong>
-</div>
+    </div>
 
-<div class="info-row">
-<span>Portal Mode</span>
-<strong>Read-only</strong>
-</div>
+    <div class="info-item">
+
+        <span class="info-label">
+            Portal Mode
+        </span>
+
+        <strong class="info-value">
+            Read-only
+        </strong>
+
+    </div>
 
 </div>
 
@@ -107,5 +192,40 @@ HTML;
             content: $content,
             user: $user
         );
+    }
+
+    private static function formatDateTime(
+        mixed $value
+    ): string {
+        if (
+            !is_string($value)
+            || $value === ''
+        ) {
+            return 'ยังไม่มีข้อมูล';
+        }
+
+        try {
+            $date =
+                new \DateTimeImmutable(
+                    $value
+                );
+
+            $date =
+                $date->setTimezone(
+                    new \DateTimeZone(
+                        'Asia/Bangkok'
+                    )
+                );
+
+            return $date->format(
+                'd/m/Y H:i'
+            ) . ' น.';
+        } catch (\Throwable) {
+            return htmlspecialchars(
+                $value,
+                ENT_QUOTES,
+                'UTF-8'
+            );
+        }
     }
 }

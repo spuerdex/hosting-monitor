@@ -1,0 +1,231 @@
+'use strict';
+
+document.addEventListener('DOMContentLoaded', () => {
+    const sidebar =
+        document.querySelector('[data-sidebar]');
+
+    const sidebarToggle =
+        document.querySelector('[data-sidebar-toggle]');
+
+    const backdrop =
+        document.querySelector('[data-sidebar-backdrop]');
+
+    const openSidebar = () => {
+        if (!sidebar) {
+            return;
+        }
+
+        sidebar.classList.add('is-open');
+        backdrop?.classList.add('is-visible');
+        document.body.classList.add('sidebar-open');
+
+        sidebarToggle?.setAttribute(
+            'aria-expanded',
+            'true'
+        );
+    };
+
+    const closeSidebar = () => {
+        if (!sidebar) {
+            return;
+        }
+
+        sidebar.classList.remove('is-open');
+        backdrop?.classList.remove('is-visible');
+        document.body.classList.remove('sidebar-open');
+
+        sidebarToggle?.setAttribute(
+            'aria-expanded',
+            'false'
+        );
+    };
+
+    sidebarToggle?.addEventListener(
+        'click',
+        () => {
+            if (
+                sidebar?.classList.contains(
+                    'is-open'
+                )
+            ) {
+                closeSidebar();
+                return;
+            }
+
+            openSidebar();
+        }
+    );
+
+    backdrop?.addEventListener(
+        'click',
+        closeSidebar
+    );
+
+    document.addEventListener(
+        'keydown',
+        event => {
+            if (event.key === 'Escape') {
+                closeSidebar();
+            }
+        }
+    );
+
+    sidebar
+        ?.querySelectorAll('a')
+        .forEach(link => {
+            link.addEventListener(
+                'click',
+                () => {
+                    if (
+                        window.innerWidth
+                        <= 768
+                    ) {
+                        closeSidebar();
+                    }
+                }
+            );
+        });
+
+
+    const studentSearch =
+        document.getElementById(
+            'student-search'
+        );
+
+    const studentStatusFilter =
+        document.getElementById(
+            'student-status-filter'
+        );
+
+    const filterStudents = () => {
+        const query =
+            studentSearch
+                ?.value
+                .trim()
+                .toLowerCase()
+            ?? '';
+
+        const status =
+            studentStatusFilter
+                ?.value
+                .toLowerCase()
+            ?? 'all';
+
+        document
+            .querySelectorAll(
+                '[data-student-row]'
+            )
+            .forEach(row => {
+                const rowText =
+                    row.textContent
+                        .toLowerCase();
+
+                const rowStatus =
+                    (
+                        row.getAttribute(
+                            'data-status'
+                        )
+                        ?? ''
+                    ).toLowerCase();
+
+                const matchesQuery =
+                    query === ''
+                    || rowText.includes(
+                        query
+                    );
+
+                const matchesStatus =
+                    status === 'all'
+                    || rowStatus === status;
+
+                row.hidden =
+                    !(
+                        matchesQuery
+                        && matchesStatus
+                    );
+            });
+    };
+
+    studentSearch?.addEventListener(
+        'input',
+        filterStudents
+    );
+
+    studentStatusFilter?.addEventListener(
+        'change',
+        filterStudents
+    );
+
+
+    document
+        .querySelectorAll(
+            '[data-copy-command]'
+        )
+        .forEach(button => {
+            button.addEventListener(
+                'click',
+                async () => {
+                    const command =
+                        button.getAttribute(
+                            'data-copy-command'
+                        )
+                        ?? '';
+
+                    if (!command) {
+                        return;
+                    }
+
+                    const originalText =
+                        button.textContent;
+
+                    try {
+                        await navigator
+                            .clipboard
+                            .writeText(
+                                command
+                            );
+
+                        button.textContent =
+                            'คัดลอกแล้ว ✓';
+                    } catch (error) {
+                        const textarea =
+                            document.createElement(
+                                'textarea'
+                            );
+
+                        textarea.value =
+                            command;
+
+                        textarea.style.position =
+                            'fixed';
+
+                        textarea.style.opacity =
+                            '0';
+
+                        document.body.appendChild(
+                            textarea
+                        );
+
+                        textarea.select();
+
+                        document.execCommand(
+                            'copy'
+                        );
+
+                        textarea.remove();
+
+                        button.textContent =
+                            'คัดลอกแล้ว ✓';
+                    }
+
+                    window.setTimeout(
+                        () => {
+                            button.textContent =
+                                originalText;
+                        },
+                        1600
+                    );
+                }
+            );
+        });
+});
