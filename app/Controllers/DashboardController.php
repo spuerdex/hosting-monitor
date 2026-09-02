@@ -4,153 +4,146 @@ declare(strict_types=1);
 
 namespace Digit\HostingAdmin\Controllers;
 
+use Digit\HostingAdmin\Views\Layout;
+
 final class DashboardController
 {
     public function page(
         array $user,
         array $status
     ): string {
-        $name = htmlspecialchars(
-            $user['display_name']
-                ?? $user['username']
-                ?? 'Admin',
-            ENT_QUOTES,
-            'UTF-8'
-        );
-
-        $overall = htmlspecialchars(
-            $status['overall_status'] ?? 'UNKNOWN',
-            ENT_QUOTES,
-            'UTF-8'
-        );
-
         $summary = $status['summary'] ?? [];
         $storage = $status['storage'] ?? [];
+        $backup = $status['backup'] ?? [];
 
-        $students = (int)($summary['students'] ?? 0);
-        $enabled = (int)($summary['enabled'] ?? 0);
-        $warnings = (int)($summary['warnings'] ?? 0);
-
-        $rootUsed = (int)(
-            $storage['root']['used_percent'] ?? 0
+        $overall = htmlspecialchars(
+            (string)(
+                $status['overall_status']
+                ?? 'UNAVAILABLE'
+            ),
+            ENT_QUOTES,
+            'UTF-8'
         );
 
-        $studentUsed = (int)(
-            $storage['student']['used_percent'] ?? 0
+        $students = (int)(
+            $summary['students'] ?? 0
         );
 
-        return <<<HTML
-<!doctype html>
-<html lang="th">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Dashboard - DiGiT Hosting Admin</title>
+        $enabled = (int)(
+            $summary['enabled'] ?? 0
+        );
 
-<style>
-*{box-sizing:border-box}
-body{
-    margin:0;
-    font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
-    background:#f5f5f5;
-    color:#333
-}
-header{
-    background:#333;
-    color:#fff;
-    padding:18px 28px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center
-}
-.brand{font-size:20px;font-weight:700}
-main{
-    max-width:1100px;
-    margin:auto;
-    padding:28px
-}
-.welcome{margin-bottom:24px}
-.grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-    gap:18px
-}
-.card{
-    background:#fff;
-    padding:22px;
-    border-radius:15px;
-    box-shadow:0 5px 20px rgba(0,0,0,.06)
-}
-.value{
-    font-size:30px;
-    font-weight:700;
-    margin-top:8px
-}
-.status{color:#F15927}
-button{
-    border:0;
-    background:#F15927;
-    color:#fff;
-    padding:9px 15px;
-    border-radius:8px;
-    cursor:pointer
-}
-</style>
-</head>
+        $suspended = (int)(
+            $summary['suspended'] ?? 0
+        );
 
-<body>
+        $warnings = (int)(
+            $summary['warnings'] ?? 0
+        );
 
-<header>
-<div class="brand">DiGiT Hosting Admin</div>
+        $root = (int)(
+            $storage['root']['used_percent']
+            ?? 0
+        );
 
-<form method="post" action="/logout">
-<button type="submit">ออกจากระบบ</button>
-</form>
-</header>
+        $studentDisk = (int)(
+            $storage['student']['used_percent']
+            ?? 0
+        );
 
-<main>
+        $lastBackup = htmlspecialchars(
+            (string)(
+                $backup['last_backup']
+                ?? 'ยังไม่มีข้อมูล'
+            ),
+            ENT_QUOTES,
+            'UTF-8'
+        );
 
-<div class="welcome">
-<h2>ยินดีต้อนรับ {$name}</h2>
-<p>สถานะ Student Hosting ล่าสุด</p>
+        $generated = htmlspecialchars(
+            (string)(
+                $status['generated_at']
+                ?? 'ไม่ทราบ'
+            ),
+            ENT_QUOTES,
+            'UTF-8'
+        );
+
+        $content = <<<HTML
+<div class="page-header">
+<h1 class="page-title">Dashboard</h1>
+<p class="page-description">
+ภาพรวมระบบ Student Hosting
+</p>
 </div>
 
-<div class="grid">
+<div class="cards">
 
 <div class="card">
-สถานะระบบ
-<div class="value status">{$overall}</div>
+<div class="card-label">สถานะระบบ</div>
+<div class="card-value orange">{$overall}</div>
 </div>
 
 <div class="card">
-นักศึกษาทั้งหมด
-<div class="value">{$students}</div>
+<div class="card-label">นักศึกษาทั้งหมด</div>
+<div class="card-value">{$students}</div>
 </div>
 
 <div class="card">
-เปิดใช้งาน
-<div class="value">{$enabled}</div>
+<div class="card-label">Enabled</div>
+<div class="card-value">{$enabled}</div>
 </div>
 
 <div class="card">
-คำเตือน
-<div class="value">{$warnings}</div>
+<div class="card-label">Suspended</div>
+<div class="card-value">{$suspended}</div>
 </div>
 
 <div class="card">
-Root Disk
-<div class="value">{$rootUsed}%</div>
+<div class="card-label">Warnings</div>
+<div class="card-value">{$warnings}</div>
 </div>
 
 <div class="card">
-Student Disk
-<div class="value">{$studentUsed}%</div>
+<div class="card-label">Root Disk</div>
+<div class="card-value">{$root}%</div>
+</div>
+
+<div class="card">
+<div class="card-label">Student Disk</div>
+<div class="card-value">{$studentDisk}%</div>
 </div>
 
 </div>
-</main>
-</body>
-</html>
+
+<div class="section">
+
+<h2 class="section-title">
+ข้อมูลล่าสุด
+</h2>
+
+<div class="card info-list">
+
+<div class="info-row">
+<span>Last Backup</span>
+<strong>{$lastBackup}</strong>
+</div>
+
+<div class="info-row">
+<span>Status Updated</span>
+<strong>{$generated}</strong>
+</div>
+
+</div>
+
+</div>
 HTML;
+
+        return Layout::render(
+            title: 'Dashboard',
+            active: 'dashboard',
+            content: $content,
+            user: $user
+        );
     }
 }
