@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Digit\HostingAdmin\Auth;
 
 use DateTimeImmutable;
+use DateTimeZone;
 use PDO;
 
 final class SessionRepository
@@ -46,9 +47,13 @@ final class SessionRepository
             $sessionHash,
             $ipAddress,
             substr($userAgent, 0, 255),
-            $expiresAt->format(
-                'Y-m-d H:i:s'
-            ),
+            $expiresAt
+                ->setTimezone(
+                    new DateTimeZone('UTC')
+                )
+                ->format(
+                    'Y-m-d H:i:s'
+                ),
         ]);
     }
 

@@ -83,3 +83,55 @@ try {
 } finally {
     $db->rollBack();
 }
+
+
+$config = Config::load(
+    '/etc/digit-hosting-admin/app.env'
+);
+
+$db = Database::connect($config);
+
+$auth = new AuthRepository($db);
+$user = $auth->findByUsername('sysadmin');
+
+$db->beginTransaction();
+
+try {
+    $sessions = new SessionRepository($db);
+
+    $hash = hash(
+        'sha256',
+        bin2hex(random_bytes(32))
+    );
+
+    $sessions->create(
+        adminUserId: (int) $user['id'],
+        sessionHash: $hash,
+        ipAddress: '127.0.0.1',
+        userAgent: 'Session Lifetime Test',
+        expiresAt: new DateTimeImmutable('+30 minutes')
+    );
+
+    $stmt = $db->prepare(
+        'SELECT TIMESTAMPDIFF(
+            SECOND,
+            NOW(),
+            expires_at
+         )
+         FROM sessions
+         WHERE session_hash = ?'
+    );
+
+    $stmt->execute([$hash]);
+
+    $remaining = (int) $stmt->fetchColumn();
+
+    assertTrueValue(
+        $remaining >= 1750
+        && $remaining <= 1850,
+        'session expiry must be about 30 minutes'
+    );
+
+} finally {
+    $db->rollBack();
+}

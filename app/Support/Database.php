@@ -17,7 +17,7 @@ final class Database
             $config['DB_NAME']
         );
 
-        return new PDO(
+        $db = new PDO(
             $dsn,
             $config['DB_USER'],
             $config['DB_PASS'],
@@ -32,5 +32,14 @@ final class Database
                     => false,
             ]
         );
+
+        /*
+         * Store and compare application timestamps in UTC.
+         */
+        $db->exec(
+            "SET time_zone = '+00:00'"
+        );
+
+        return $db;
     }
 }
