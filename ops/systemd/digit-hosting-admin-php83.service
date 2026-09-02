@@ -1,0 +1,26 @@
+[Unit]
+Description=DiGiT Hosting Admin PHP 8.3 FPM
+After=network.target
+
+[Service]
+Type=simple
+
+RuntimeDirectory=digit-hosting-admin
+RuntimeDirectoryMode=0755
+
+ExecStart=/www/server/php/83/sbin/php-fpm \
+  -F \
+  -c /www/server/php/83/etc/php.ini \
+  -y /etc/digit-hosting-admin/php-fpm.conf
+
+ExecReload=/bin/kill -USR2 $MAINPID
+
+Restart=on-failure
+RestartSec=3s
+
+PrivateTmp=yes
+ProtectHome=yes
+NoNewPrivileges=yes
+
+[Install]
+WantedBy=multi-user.target
