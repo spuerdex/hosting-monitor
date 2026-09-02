@@ -9,6 +9,8 @@ use Digit\HostingAdmin\Auth\SessionManager;
 use Digit\HostingAdmin\Auth\SessionRepository;
 use Digit\HostingAdmin\Controllers\AuthController;
 use Digit\HostingAdmin\Controllers\DashboardController;
+use Digit\HostingAdmin\Controllers\StudentsController;
+use Digit\HostingAdmin\Hosting\StatusRepository;
 use Digit\HostingAdmin\Support\Config;
 use Digit\HostingAdmin\Support\Database;
 
@@ -107,6 +109,12 @@ $loginManager = new LoginManager(
 
 $authController = new AuthController();
 $dashboardController = new DashboardController();
+$studentsController = new StudentsController();
+
+$statusRepository = new StatusRepository(
+    $config['STATUS_FILE']
+        ?? '/var/lib/digit-hosting-admin/status/status.json'
+);
 
 $method = strtoupper(
     $_SERVER['REQUEST_METHOD'] ?? 'GET'
@@ -233,6 +241,37 @@ if (
         'Location: /dashboard',
         true,
         303
+    );
+
+    exit;
+}
+
+
+
+/* Students */
+
+if (
+    $method === 'GET'
+    && $path === '/students'
+) {
+    if (!$currentUser) {
+        header('Location: /login');
+        exit;
+    }
+
+    try {
+        $status = $statusRepository->get();
+
+        $students = $status['students']
+            ?? [];
+
+    } catch (\Throwable $e) {
+        $students = [];
+    }
+
+    echo $studentsController->page(
+        $currentUser,
+        $students
     );
 
     exit;
