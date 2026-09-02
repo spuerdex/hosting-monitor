@@ -12,8 +12,13 @@ final class SystemController
         array $user,
         array $status
     ): string {
-        $services = $status['services'] ?? [];
-        $storage = $status['storage'] ?? [];
+        $services =
+            $status['services']
+            ?? [];
+
+        $storage =
+            $status['storage']
+            ?? [];
 
         $labels = [
             'nginx' => 'Nginx',
@@ -25,90 +30,180 @@ final class SystemController
 
         $serviceHtml = '';
 
-        foreach ($labels as $key => $label) {
+        foreach (
+            $labels as $key => $label
+        ) {
             $running = (bool)(
-                $services[$key] ?? false
+                $services[$key]
+                ?? false
             );
 
-            $badge = $running
-                ? '<span class="badge badge-ok">Running</span>'
-                : '<span class="badge badge-bad">Unavailable</span>';
+            $indicatorClass =
+                $running
+                ? 'service-indicator-up'
+                : 'service-indicator-down';
+
+            $state =
+                $running
+                ? 'Running'
+                : 'Unavailable';
 
             $serviceHtml .= <<<HTML
-<div class="card service">
-<span class="service-name">{$label}</span>
-{$badge}
+<div class="surface service-card">
+
+    <div class="service-head">
+
+        <span class="service-name">
+            {$label}
+        </span>
+
+        <span
+            class="service-indicator {$indicatorClass}"
+        ></span>
+
+    </div>
+
+    <div class="service-state">
+        {$state}
+    </div>
+
 </div>
 HTML;
         }
 
-        $root = (int)(
-            $storage['root']['used_percent']
-            ?? 0
+        $root = max(
+            0,
+            min(
+                100,
+                (int)(
+                    $storage['root']
+                        ['used_percent']
+                    ?? 0
+                )
+            )
         );
 
-        $student = (int)(
-            $storage['student']['used_percent']
-            ?? 0
+        $student = max(
+            0,
+            min(
+                100,
+                (int)(
+                    $storage['student']
+                        ['used_percent']
+                    ?? 0
+                )
+            )
         );
 
-        $generated = htmlspecialchars(
-            (string)(
+        $generated =
+            self::formatDateTime(
                 $status['generated_at']
-                ?? 'ไม่ทราบ'
-            ),
-            ENT_QUOTES,
-            'UTF-8'
-        );
+                ?? null
+            );
 
         $content = <<<HTML
-<div class="page-header">
-<h1 class="page-title">System</h1>
+<div class="page-heading">
 
-<p class="page-description">
-สถานะบริการของ Student Hosting Server
-</p>
+<div>
+    <h2 class="page-title">
+        Server Services
+    </h2>
+
+    <p class="page-description">
+        สถานะ Service และ Storage
+        ของ Student Hosting Server
+    </p>
 </div>
 
-<div class="service-grid">
+<span class="status-pill status-success">
+    ● Read-only Monitoring
+</span>
+
+</div>
+
+
+<div class="service-status-grid">
 {$serviceHtml}
 </div>
 
-<div class="section">
-
-<h2 class="section-title">
-Storage
-</h2>
-
-<div class="cards">
-
-<div class="card">
-<div class="card-label">Root Disk</div>
-<div class="card-value">{$root}%</div>
-</div>
-
-<div class="card">
-<div class="card-label">Student Disk</div>
-<div class="card-value">{$student}%</div>
-</div>
-
-</div>
-
-</div>
 
 <div class="section">
 
-<div class="card info-list">
+<div class="section-heading">
+    <h2>Storage</h2>
 
-<div class="info-row">
-<span>Status Updated</span>
-<strong>{$generated}</strong>
+    <p>
+        Disk usage
+    </p>
 </div>
 
-<div class="info-row">
-<span>Mode</span>
-<strong>Read-only Monitoring</strong>
+<div class="storage-grid">
+
+<div class="surface storage-card">
+
+    <div class="disk-heading">
+        <span>Root Disk</span>
+        <span>{$root}%</span>
+    </div>
+
+    <div class="progress-track">
+        <div
+            class="progress-fill"
+            style="width: {$root}%"
+        ></div>
+    </div>
+
 </div>
+
+
+<div class="surface storage-card">
+
+    <div class="disk-heading">
+        <span>Student Disk</span>
+        <span>{$student}%</span>
+    </div>
+
+    <div class="progress-track">
+        <div
+            class="progress-fill progress-fill-success"
+            style="width: {$student}%"
+        ></div>
+    </div>
+
+</div>
+
+</div>
+
+</div>
+
+
+<div class="section">
+
+<div class="surface recent-panel">
+
+    <div class="info-item">
+
+        <span class="info-label">
+            Status Updated
+        </span>
+
+        <strong class="info-value">
+            {$generated}
+        </strong>
+
+    </div>
+
+    <div class="info-item">
+
+        <span class="info-label">
+            Monitoring Mode
+        </span>
+
+        <strong class="info-value">
+            Read-only
+        </strong>
+
+    </div>
 
 </div>
 
@@ -121,5 +216,40 @@ HTML;
             content: $content,
             user: $user
         );
+    }
+
+    private static function formatDateTime(
+        mixed $value
+    ): string {
+        if (
+            !is_string($value)
+            || $value === ''
+        ) {
+            return 'ไม่มีข้อมูล';
+        }
+
+        try {
+            $date =
+                new \DateTimeImmutable(
+                    $value
+                );
+
+            $date =
+                $date->setTimezone(
+                    new \DateTimeZone(
+                        'Asia/Bangkok'
+                    )
+                );
+
+            return $date->format(
+                'd/m/Y H:i'
+            ) . ' น.';
+        } catch (\Throwable) {
+            return htmlspecialchars(
+                $value,
+                ENT_QUOTES,
+                'UTF-8'
+            );
+        }
     }
 }

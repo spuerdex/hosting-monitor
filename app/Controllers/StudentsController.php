@@ -14,15 +14,24 @@ final class StudentsController
     ): string {
         $rows = '';
 
+        $enabledCount = 0;
+        $suspendedCount = 0;
+
         foreach ($students as $student) {
             $id = htmlspecialchars(
-                (string)($student['student_id'] ?? ''),
+                (string)(
+                    $student['student_id']
+                    ?? ''
+                ),
                 ENT_QUOTES,
                 'UTF-8'
             );
 
             $domain = htmlspecialchars(
-                (string)($student['domain'] ?? ''),
+                (string)(
+                    $student['domain']
+                    ?? ''
+                ),
                 ENT_QUOTES,
                 'UTF-8'
             );
@@ -34,6 +43,14 @@ final class StudentsController
                 )
             );
 
+            if ($status === 'enabled') {
+                $enabledCount++;
+            }
+
+            if ($status === 'suspended') {
+                $suspendedCount++;
+            }
+
             $statusLabel = match ($status) {
                 'enabled' => 'Enabled',
                 'suspended' => 'Suspended',
@@ -41,23 +58,28 @@ final class StudentsController
             };
 
             $statusClass = match ($status) {
-                'enabled' => 'badge-enabled',
-                'suspended' => 'badge-suspended',
-                default => 'badge-neutral',
+                'enabled' => 'status-success',
+                'suspended' => 'status-danger',
+                default => 'status-warning',
             };
 
-            $quota = $student['quota'] ?? [];
+            $quota =
+                $student['quota']
+                ?? [];
 
             $used = (int)(
-                $quota['used_mb'] ?? 0
+                $quota['used_mb']
+                ?? 0
             );
 
             $soft = (int)(
-                $quota['soft_mb'] ?? 0
+                $quota['soft_mb']
+                ?? 0
             );
 
             $hard = (int)(
-                $quota['hard_mb'] ?? 0
+                $quota['hard_mb']
+                ?? 0
             );
 
             $php = $this->healthBadge(
@@ -67,7 +89,7 @@ final class StudentsController
                 )
             );
 
-            $nginx = $this->healthBadge(
+            $nginxHealthy =
                 (bool)(
                     $student['nginx_config']
                     ?? false
@@ -80,30 +102,44 @@ final class StudentsController
                         $student['nginx_enabled']
                         ?? false
                     )
-                )
-            );
+                );
 
-            $database = $this->healthBadge(
-                (bool)(
-                    $student['database']
-                    ?? false
-                )
-            );
+            $nginx =
+                $this->healthBadge(
+                    $nginxHealthy
+                );
 
-            $credential = $this->healthBadge(
-                (bool)(
-                    $student['credential_exists']
-                    ?? false
-                )
-            );
+            $database =
+                $this->healthBadge(
+                    (bool)(
+                        $student['database']
+                        ?? false
+                    )
+                );
+
+            $credential =
+                $this->healthBadge(
+                    (bool)(
+                        $student[
+                            'credential_exists'
+                        ]
+                        ?? false
+                    )
+                );
 
             $rows .= <<<HTML
-<tr data-student-row>
+<tr
+    data-student-row
+    data-status="{$status}"
+>
 
-<td><strong>{$id}</strong></td>
+<td class="student-id">
+{$id}
+</td>
 
 <td>
 <a
+    class="student-domain"
     href="https://{$domain}"
     target="_blank"
     rel="noopener noreferrer"
@@ -113,7 +149,7 @@ final class StudentsController
 </td>
 
 <td>
-<span class="badge {$statusClass}">
+<span class="status-pill {$statusClass}">
 {$statusLabel}
 </span>
 </td>
@@ -144,46 +180,105 @@ HTML;
 HTML;
         }
 
-        $count = count($students);
+        $count = count(
+            $students
+        );
 
         $content = <<<HTML
-<div class="page-header-row">
+<div class="page-heading">
 
 <div>
-<h1 class="page-title">นักศึกษา</h1>
+    <h2 class="page-title">
+        Student Accounts
+    </h2>
 
-<p class="page-description">
-{$count} Hosting Accounts
-</p>
+    <p class="page-description">
+        ตรวจสอบ Hosting Account,
+        Quota และสถานะบริการของนักศึกษา
+    </p>
 </div>
-
-<input
-    id="student-search"
-    class="search-box"
-    type="search"
-    placeholder="ค้นหา Student ID หรือ Domain..."
-    autocomplete="off"
->
 
 </div>
 
-<div class="table-card">
-<div class="table-wrap">
 
-<table>
+<div class="student-summary">
+
+<div class="surface student-summary-card">
+    <small>ทั้งหมด</small>
+    <strong>{$count}</strong>
+</div>
+
+<div class="surface student-summary-card">
+    <small>Enabled</small>
+    <strong>{$enabledCount}</strong>
+</div>
+
+<div class="surface student-summary-card">
+    <small>Suspended</small>
+    <strong>{$suspendedCount}</strong>
+</div>
+
+</div>
+
+
+<section class="surface">
+
+<div class="student-toolbar">
+
+    <div class="student-search-wrap">
+
+        <span class="search-icon">
+            ⌕
+        </span>
+
+        <input
+            id="student-search"
+            class="student-search"
+            type="search"
+            placeholder="ค้นหา Student ID หรือ Domain..."
+            autocomplete="off"
+        >
+
+    </div>
+
+
+    <select
+        id="student-status-filter"
+        class="student-status-filter"
+        aria-label="กรองสถานะ"
+    >
+        <option value="all">
+            ทุกสถานะ
+        </option>
+
+        <option value="enabled">
+            Enabled
+        </option>
+
+        <option value="suspended">
+            Suspended
+        </option>
+    </select>
+
+</div>
+
+
+<div class="table-responsive">
+
+<table class="students-table">
 
 <thead>
 <tr>
-<th>Student ID</th>
-<th>Domain</th>
-<th>Status</th>
-<th>Used</th>
-<th>Soft</th>
-<th>Hard</th>
-<th>PHP</th>
-<th>Nginx</th>
-<th>DB</th>
-<th>Credential</th>
+    <th>Student ID</th>
+    <th>Domain</th>
+    <th>Status</th>
+    <th>Used</th>
+    <th>Soft</th>
+    <th>Hard</th>
+    <th>PHP</th>
+    <th>Nginx</th>
+    <th>DB</th>
+    <th>Credential</th>
 </tr>
 </thead>
 
@@ -194,39 +289,8 @@ HTML;
 </table>
 
 </div>
-</div>
 
-<script>
-const search =
-    document.getElementById(
-        'student-search'
-    );
-
-if (search) {
-    search.addEventListener(
-        'input',
-        function () {
-            const query =
-                this.value
-                    .trim()
-                    .toLowerCase();
-
-            document
-                .querySelectorAll(
-                    '[data-student-row]'
-                )
-                .forEach(function (row) {
-                    row.hidden =
-                        query !== ''
-                        &&
-                        !row.textContent
-                            .toLowerCase()
-                            .includes(query);
-                });
-        }
-    );
-}
-</script>
+</section>
 HTML;
 
         return Layout::render(
@@ -240,8 +304,24 @@ HTML;
     private function healthBadge(
         bool $healthy
     ): string {
-        return $healthy
-            ? '<span class="health-ok">✓</span>'
-            : '<span class="health-bad">✕</span>';
+        if ($healthy) {
+            return <<<HTML
+<span
+    class="health-check health-check-ok"
+    title="OK"
+>
+✓
+</span>
+HTML;
+        }
+
+        return <<<HTML
+<span
+    class="health-check health-check-bad"
+    title="Unavailable"
+>
+×
+</span>
+HTML;
     }
 }
