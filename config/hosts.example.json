@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "hosts": [
+    {
+      "code": "cs",
+      "name": "Computer Science",
+      "ip": "192.0.2.11",
+      "ssh_user": "hostingportal",
+      "enabled": false
+    },
+    {
+      "code": "it",
+      "name": "Information Technology",
+      "ip": "192.0.2.12",
+      "ssh_user": "hostingportal",
+      "enabled": false
+    }
+  ]
+}
