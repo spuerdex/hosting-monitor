@@ -1,6 +1,7 @@
 import json
 import os
 import subprocess
+import tempfile
 from pathlib import Path
 
 
@@ -70,13 +71,13 @@ def write_atomic(
     destination: Path,
     doc: dict,
 ) -> None:
+    """Atomically publish one JSON document."""
+
+    destination = Path(destination)
+
     destination.parent.mkdir(
         parents=True,
         exist_ok=True,
-    )
-
-    temp = destination.with_name(
-        destination.name + ".tmp"
     )
 
     payload = (
@@ -88,20 +89,32 @@ def write_atomic(
         + "\n"
     )
 
-    temp.write_text(
-        payload,
-        encoding="utf-8",
-    )
+    temp_path = None
 
-    os.chmod(
-        temp,
-        0o640,
-    )
+    try:
+        # Unique temporary file in the destination directory.
+        with tempfile.NamedTemporaryFile(
+            mode="w",
+            encoding="utf-8",
+            dir=destination.parent,
+            prefix=f".{destination.name}.",
+            suffix=".tmp",
+            delete=False,
+        ) as stream:
+            temp_path = Path(stream.name)
 
-    os.replace(
-        temp,
-        destination,
-    )
+            os.fchmod(stream.fileno(), 0o640)
+
+            stream.write(payload)
+            stream.flush()
+            os.fsync(stream.fileno())
+
+        os.replace(temp_path, destination)
+
+    finally:
+        # Also clean up when write, chmod, fsync or replace fails.
+        if temp_path is not None:
+            temp_path.unlink(missing_ok=True)
 
 
 def fetch_and_store(
