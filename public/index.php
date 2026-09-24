@@ -436,15 +436,37 @@ if (
     $method === 'GET'
     && $path === '/students'
 ) {
-    $status =
-        $loadStatus();
-
-    echo $studentsController
-        ->page(
-            $currentUser,
-            $status['students']
-                ?? []
+    try {
+        $studentsRepository = new MultiHostStatusRepository(
+            $config['HOST_REGISTRY_FILE']
+                ?? '/etc/digit-hosting-admin/hosts.json',
+            $config['STATUS_CACHE_DIR']
+                ?? '/var/lib/digit-hosting-admin/status'
         );
+
+        $studentHosts = $studentsRepository->all();
+
+    } catch (\RuntimeException $e) {
+        http_response_code(503);
+        echo 'Monitoring data temporarily unavailable.';
+        exit;
+    }
+
+    try {
+        $studentsHtml = $studentsController
+            ->monitoringPage(
+                $currentUser,
+                $studentHosts,
+                $_GET['host'] ?? 'all'
+            );
+
+    } catch (\InvalidArgumentException $e) {
+        http_response_code(400);
+        echo 'Invalid host selection.';
+        exit;
+    }
+
+    echo $studentsHtml;
 
     exit;
 }
