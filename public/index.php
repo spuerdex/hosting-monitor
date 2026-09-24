@@ -15,6 +15,7 @@ use Digit\HostingAdmin\Controllers\ManualController;
 use Digit\HostingAdmin\Controllers\StudentsController;
 use Digit\HostingAdmin\Controllers\SystemController;
 
+use Digit\HostingAdmin\Hosting\MultiHostStatusRepository;
 use Digit\HostingAdmin\Hosting\StatusRepository;
 
 use Digit\HostingAdmin\Support\Config;
@@ -395,11 +396,37 @@ if (
     $method === 'GET'
     && $path === '/dashboard'
 ) {
-    echo $dashboardController
-        ->page(
-            $currentUser,
-            $loadStatus()
+    try {
+        $monitoringRepository = new MultiHostStatusRepository(
+            $config['HOST_REGISTRY_FILE']
+                ?? '/etc/digit-hosting-admin/hosts.json',
+            $config['STATUS_CACHE_DIR']
+                ?? '/var/lib/digit-hosting-admin/status'
         );
+
+        $monitoringHosts = $monitoringRepository->all();
+
+    } catch (\RuntimeException $e) {
+        http_response_code(503);
+        echo 'Monitoring data temporarily unavailable.';
+        exit;
+    }
+
+    try {
+        $monitoringHtml = $dashboardController
+            ->monitoringPage(
+                $currentUser,
+                $monitoringHosts,
+                $_GET['host'] ?? null
+            );
+
+    } catch (\InvalidArgumentException $e) {
+        http_response_code(400);
+        echo 'Invalid host selection.';
+        exit;
+    }
+
+    echo $monitoringHtml;
 
     exit;
 }
