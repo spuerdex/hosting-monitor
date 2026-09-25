@@ -16,7 +16,6 @@ use Digit\HostingAdmin\Controllers\StudentsController;
 use Digit\HostingAdmin\Controllers\SystemController;
 
 use Digit\HostingAdmin\Hosting\MultiHostStatusRepository;
-use Digit\HostingAdmin\Hosting\StatusRepository;
 
 use Digit\HostingAdmin\Support\Config;
 use Digit\HostingAdmin\Support\Database;
@@ -174,27 +173,6 @@ $backupController =
 
 $manualController =
     new ManualController();
-
-
-$statusRepository =
-    new StatusRepository(
-        $config['STATUS_FILE']
-        ?? '/var/lib/digit-hosting-admin/status/status.json'
-    );
-
-
-$loadStatus =
-    static function () use (
-        $statusRepository
-    ): array {
-        try {
-            return $statusRepository
-                ->get();
-
-        } catch (Throwable $e) {
-            return [];
-        }
-    };
 
 
 $method = strtoupper(
@@ -476,11 +454,37 @@ if (
     $method === 'GET'
     && $path === '/system'
 ) {
-    echo $systemController
-        ->page(
-            $currentUser,
-            $loadStatus()
+    try {
+        $systemRepository = new MultiHostStatusRepository(
+            $config['HOST_REGISTRY_FILE']
+                ?? '/etc/digit-hosting-admin/hosts.json',
+            $config['STATUS_CACHE_DIR']
+                ?? '/var/lib/digit-hosting-admin/status'
         );
+
+        $systemHosts = $systemRepository->all();
+
+    } catch (\RuntimeException $e) {
+        http_response_code(503);
+        echo 'Monitoring data temporarily unavailable.';
+        exit;
+    }
+
+    try {
+        $systemHtml = $systemController
+            ->monitoringPage(
+                $currentUser,
+                $systemHosts,
+                $_GET['host'] ?? null
+            );
+
+    } catch (\InvalidArgumentException $e) {
+        http_response_code(400);
+        echo 'Invalid host selection.';
+        exit;
+    }
+
+    echo $systemHtml;
 
     exit;
 }
@@ -490,11 +494,37 @@ if (
     $method === 'GET'
     && $path === '/backup'
 ) {
-    echo $backupController
-        ->page(
-            $currentUser,
-            $loadStatus()
+    try {
+        $backupRepository = new MultiHostStatusRepository(
+            $config['HOST_REGISTRY_FILE']
+                ?? '/etc/digit-hosting-admin/hosts.json',
+            $config['STATUS_CACHE_DIR']
+                ?? '/var/lib/digit-hosting-admin/status'
         );
+
+        $backupHosts = $backupRepository->all();
+
+    } catch (\RuntimeException $e) {
+        http_response_code(503);
+        echo 'Monitoring data temporarily unavailable.';
+        exit;
+    }
+
+    try {
+        $backupHtml = $backupController
+            ->monitoringPage(
+                $currentUser,
+                $backupHosts,
+                $_GET['host'] ?? null
+            );
+
+    } catch (\InvalidArgumentException $e) {
+        http_response_code(400);
+        echo 'Invalid host selection.';
+        exit;
+    }
+
+    echo $backupHtml;
 
     exit;
 }
