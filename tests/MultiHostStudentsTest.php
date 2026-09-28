@@ -97,3 +97,56 @@ assertSameValue(
 assertTrueValue(
     str_contains($offlineHtml, 'UNREACHABLE')
 );
+
+// Malformed host selector must be rejected, not cause TypeError.
+foreach ([['cs'], 123, ''] as $invalidSelection) {
+    $rejected = false;
+
+    try {
+        $controller->monitoringPage(
+            ['display_name' => 'admin'],
+            $hosts,
+            $invalidSelection
+        );
+    } catch (InvalidArgumentException $e) {
+        $rejected = true;
+    }
+
+    assertSameValue(true, $rejected);
+}
+
+// Remote account status must never inject HTML attributes.
+$xssStudent = $student;
+$xssStudent['status'] =
+    'enabled" onmouseover="alert(1)';
+
+$xssHosts = [
+    'cs' => [
+        'code' => 'cs',
+        'name' => 'Computer Science',
+        'display_state' => 'HEALTHY',
+        'status' => [
+            'students' => [$xssStudent],
+        ],
+    ],
+];
+
+$xssHtml = $controller->monitoringPage(
+    ['display_name' => 'admin'],
+    $xssHosts,
+    'cs'
+);
+
+assertTrueValue(
+    !str_contains(
+        $xssHtml,
+        'data-status="enabled" onmouseover="alert(1)"'
+    )
+);
+
+assertTrueValue(
+    str_contains(
+        $xssHtml,
+        'enabled&quot; onmouseover=&quot;alert(1)'
+    )
+);

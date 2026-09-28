@@ -559,3 +559,45 @@ if (
         )
     );
 }
+/*
+|--------------------------------------------------------------------------
+| Malformed host selectors
+|--------------------------------------------------------------------------
+*/
+
+foreach ([['cs'], 123, ''] as $invalidSelection) {
+    $systemRejected = false;
+
+    try {
+        $systemController->monitoringPage(
+            ['display_name' => 'admin'],
+            $hosts,
+            $invalidSelection
+        );
+    } catch (\InvalidArgumentException $e) {
+        $systemRejected = true;
+    }
+
+    assertSameValue(
+        true,
+        $systemRejected
+    );
+
+
+    $backupRejected = false;
+
+    try {
+        $backupController->monitoringPage(
+            ['display_name' => 'admin'],
+            $hosts,
+            $invalidSelection
+        );
+    } catch (\InvalidArgumentException $e) {
+        $backupRejected = true;
+    }
+
+    assertSameValue(
+        true,
+        $backupRejected
+    );
+}

@@ -304,11 +304,15 @@ HTML;
     public function monitoringPage(
         array $user,
         array $hosts,
-        string $selected = 'all'
+        mixed $selected = 'all'
     ): string {
         if (
-            $selected !== 'all'
-            && !array_key_exists($selected, $hosts)
+            !is_string($selected)
+            || $selected === ''
+            || (
+                $selected !== 'all'
+                && !array_key_exists($selected, $hosts)
+            )
         ) {
             throw new \InvalidArgumentException(
                 'Invalid host selection.'
@@ -425,6 +429,12 @@ HTML;
                     $suspendedCount++;
                 }
 
+                $statusAttr = htmlspecialchars(
+                    $status,
+                    ENT_QUOTES | ENT_SUBSTITUTE,
+                    'UTF-8'
+                );
+
                 $statusLabel = match ($status) {
                     'enabled' => 'Enabled',
                     'suspended' => 'Suspended',
@@ -495,7 +505,7 @@ HTML;
                 $rows .= <<<HTML
 <tr
     data-student-row
-    data-status="{$status}"
+    data-status="{$statusAttr}"
     data-host="{$hostCodeSafe}"
 >
 <td>{$hostName} ({$hostCodeSafe})</td>

@@ -197,10 +197,17 @@ HTML;
     public function monitoringPage(
         array $user,
         array $hosts,
-        ?string $selectedHost = null
+        mixed $selectedHost = null
     ): string {
         if ($selectedHost !== null) {
-            if (!array_key_exists($selectedHost, $hosts)) {
+            if (
+                !is_string($selectedHost)
+                || $selectedHost === ''
+                || !array_key_exists(
+                    $selectedHost,
+                    $hosts
+                )
+            ) {
                 throw new \InvalidArgumentException(
                     'Unknown host selection.'
                 );
