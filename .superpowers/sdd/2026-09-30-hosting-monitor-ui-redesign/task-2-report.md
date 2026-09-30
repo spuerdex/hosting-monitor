@@ -36,7 +36,7 @@ After the implementation, both feature tests passed under the project runner.
 - `php -l app/Views/Layout.php`: no syntax errors.
 - `node --check public/assets/js/app.js`: passed.
 - `git diff --check`: passed; Git emitted only the repository's LF/CRLF normalization warning for `tests/FrontendAccessibilityTest.php`.
-- `C:\wamp64\bin\php\php8.3.14\php.exe tests/run.php`: 29 tests passed; 3 failures remain, all known environment-only failures listed below.
+- `C:\wamp64\bin\php\php8.3.14\php.exe tests/run.php`: 26 tests passed; 3 failures remain, all known environment-only failures listed below.
 
 ## Self-review
 
