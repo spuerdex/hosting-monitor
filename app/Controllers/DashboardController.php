@@ -339,47 +339,28 @@ HTML;
     public function overview(array $user, array $hosts): string
     {
         $cards = '';
-        $currentAccounts = 0;
-        $excludedHosts = 0;
+        $totalStudents = 0;
+        $healthyHosts = 0;
+        $warningHosts = 0;
 
         foreach ($hosts as $code => $host) {
-            $safeName = htmlspecialchars(
-                (string) ($host['name'] ?? $code),
-                ENT_QUOTES,
-                'UTF-8'
-            );
+            if (!is_array($host)) {
+                continue;
+            }
 
-            $safeCode = htmlspecialchars(
-                (string) $code,
-                ENT_QUOTES,
-                'UTF-8'
-            );
+            $state = strtoupper((string) (
+                $host['display_state'] ?? 'UNAVAILABLE'
+            ));
 
-            $safeIp = htmlspecialchars(
-                (string) ($host['ip'] ?? '-'),
-                ENT_QUOTES,
-                'UTF-8'
-            );
-
-            $state = htmlspecialchars(
-                (string) ($host['display_state'] ?? 'UNAVAILABLE'),
-                ENT_QUOTES,
-                'UTF-8'
-            );
-
-            $lastSuccess = self::formatDateTime(
-                $host['last_success'] ?? null
-            );
-
-            $href = htmlspecialchars(
-                '/dashboard?host=' . rawurlencode((string) $code),
-                ENT_QUOTES,
-                'UTF-8'
-            );
+            if ($state === 'HEALTHY') {
+                $healthyHosts++;
+            } else {
+                $warningHosts++;
+            }
 
             $isCurrent = is_array($host['status'] ?? null)
                 && in_array(
-                    $host['display_state'] ?? null,
+                    $state,
                     ['HEALTHY', 'WARNING'],
                     true
                 )
@@ -387,29 +368,30 @@ HTML;
                 && $host['account_count'] >= 0;
 
             if ($isCurrent) {
-                $currentAccounts += $host['account_count'];
-
-                $accountLabel =
-                    $host['account_count'] . ' accounts';
-            } else {
-                $excludedHosts++;
-                $accountLabel = 'Unknown (not current)';
+                $totalStudents += $host['account_count'];
             }
 
-            $cards .= <<<HTML
-<article class="surface metric-card">
-    <h3><a href="{$href}">{$safeName}</a></h3>
-    <p>Host: {$safeCode} | IP: {$safeIp}</p>
-    <p>State: {$state}</p>
-    <p>Accounts: {$accountLabel}</p>
-    <p>Last successful fetch: {$lastSuccess}</p>
-</article>
-HTML;
+            $cards .= self::renderHostHealthCard(
+                (string) $code,
+                $host,
+                $isCurrent
+            );
         }
 
         if ($cards === '') {
-            $cards = '<p>No enabled hosts available.</p>';
+            $cards = <<<HTML
+<div class="dashboard-empty">
+    <span class="dashboard-empty-icon" aria-hidden="true">!</span>
+    <strong>No enabled hosts available.</strong>
+    <span>Host health will appear here when an enabled host is configured.</span>
+</div>
+HTML;
         }
+
+        $totalHosts = count($hosts);
+        $warningLabel = $warningHosts === 0
+            ? 'None'
+            : (string) $warningHosts;
 
         $content = <<<HTML
 <div class="page-heading">
@@ -421,15 +403,45 @@ HTML;
     </div>
 </div>
 
-<div class="surface metric-card">
-    <h3>Current Accounts: {$currentAccounts}</h3>
-    <p>Excluded hosts: {$excludedHosts}</p>
-    <p>Totals count current host data only; unknown is not zero.</p>
+<div class="dashboard-summary" aria-label="Dashboard summary">
+    <article class="surface dashboard-summary-card">
+        <span class="metric-label">Total Hosts</span>
+        <strong class="dashboard-summary-value">{$totalHosts}</strong>
+        <span class="metric-sub">Enabled hosting programs</span>
+    </article>
+
+    <article class="surface dashboard-summary-card dashboard-summary-card-success">
+        <span class="metric-label">Healthy Hosts</span>
+        <strong class="dashboard-summary-value">{$healthyHosts}</strong>
+        <span class="metric-sub">Reporting normally</span>
+    </article>
+
+    <article class="surface dashboard-summary-card dashboard-summary-card-warning">
+        <span class="metric-label">Warning / Unavailable</span>
+        <strong class="dashboard-summary-value">{$warningLabel}</strong>
+        <span class="metric-sub">Needs attention</span>
+    </article>
+
+    <article class="surface dashboard-summary-card">
+        <span class="metric-label">Total Students</span>
+        <strong class="dashboard-summary-value">{$totalStudents}</strong>
+        <span class="metric-sub">Current accounts only</span>
+    </article>
 </div>
 
-<div class="metric-grid">
+<section class="surface dashboard-host-panel" data-host-health-matrix>
+    <div class="dashboard-section-heading">
+        <div>
+            <h2 class="panel-title">Host Health Matrix</h2>
+            <p class="panel-subtitle">Storage, backup, and collection health for every enabled host</p>
+        </div>
+        <span class="dashboard-section-count">{$totalHosts} hosts</span>
+    </div>
+
+    <div class="dashboard-host-grid">
     {$cards}
-</div>
+    </div>
+</section>
 HTML;
 
         return Layout::render(
@@ -438,6 +450,120 @@ HTML;
             content: $content,
             user: $user
         );
+    }
+
+    private static function renderHostHealthCard(
+        string $code,
+        array $host,
+        bool $isCurrent
+    ): string {
+        $escape = static fn (mixed $value): string => htmlspecialchars(
+            is_scalar($value) ? (string) $value : '-',
+            ENT_QUOTES,
+            'UTF-8'
+        );
+
+        $state = strtoupper((string) (
+            $host['display_state'] ?? 'UNAVAILABLE'
+        ));
+
+        $stateClass = match ($state) {
+            'HEALTHY' => 'dashboard-host-healthy',
+            'WARNING' => 'dashboard-host-warning',
+            'STALE' => 'dashboard-host-stale',
+            default => 'dashboard-host-unavailable',
+        };
+
+        $stateIcon = match ($state) {
+            'HEALTHY' => '✓',
+            'WARNING', 'STALE' => '!',
+            default => '×',
+        };
+
+        $safeCode = $escape($host['code'] ?? $code);
+        $safeName = $escape($host['name'] ?? $code);
+        $safeIp = $escape($host['ip'] ?? '-');
+        $safeState = $escape($state);
+        $safeLastSuccess = $escape(self::formatDateTime(
+            $host['last_success'] ?? null
+        ));
+        $safeHref = $escape(
+            '/dashboard?host=' . rawurlencode($code)
+        );
+
+        $accountLabel = $isCurrent
+            ? $escape($host['account_count'] . ' accounts')
+            : 'Unknown (not current)';
+
+        $storage = is_array($host['status'] ?? null)
+            && is_array($host['status']['storage'] ?? null)
+            ? $host['status']['storage']
+            : [];
+
+        $rootPercent = self::percentage(
+            $storage['root']['used_percent'] ?? null
+        );
+        $studentPercent = self::percentage(
+            $storage['student']['used_percent'] ?? null
+        );
+
+        $backup = is_array($host['status'] ?? null)
+            && is_array($host['status']['backup'] ?? null)
+            ? self::formatDateTime(
+                $host['status']['backup']['last_backup'] ?? null
+            )
+            : 'ไม่มีข้อมูล';
+
+        return <<<HTML
+<article class="dashboard-host-card {$stateClass}">
+    <div class="dashboard-host-card-heading">
+        <div>
+            <span class="dashboard-host-code">{$safeCode}</span>
+            <h3><a href="{$safeHref}">{$safeName}</a></h3>
+            <span class="dashboard-host-ip">{$safeIp}</span>
+        </div>
+        <span class="dashboard-host-status" aria-label="Status: {$safeState}">
+            <span class="dashboard-host-status-icon" aria-hidden="true">{$stateIcon}</span>
+            <span>{$safeState}</span>
+        </span>
+    </div>
+
+    <dl class="dashboard-host-facts">
+        <div>
+            <dt>Accounts</dt>
+            <dd>{$accountLabel}</dd>
+        </div>
+        <div>
+            <dt>Last successful collection</dt>
+            <dd>{$safeLastSuccess}</dd>
+        </div>
+        <div>
+            <dt>Storage</dt>
+            <dd class="dashboard-storage-signals">
+                <span>Root {$rootPercent}</span>
+                <span>Student {$studentPercent}</span>
+            </dd>
+        </div>
+        <div>
+            <dt>Last backup</dt>
+            <dd>{$escape($backup)}</dd>
+        </div>
+    </dl>
+</article>
+HTML;
+    }
+
+    private static function percentage(mixed $value): string
+    {
+        if (!is_int($value) && !is_float($value) && !is_numeric($value)) {
+            return '—';
+        }
+
+        $percentage = max(0, min(100, (float) $value));
+
+        return floor($percentage) === $percentage
+            ? (string) (int) $percentage . '%'
+            : number_format($percentage, 1, '.', '') . '%';
     }
 
     public function hostDetail(array $user, array $host): string
