@@ -102,3 +102,19 @@ assertTrueValue(
 assertTrueValue(
     str_contains($html, 'aria-label="ตรวจสอบสถานะล่าสุด"')
 );
+
+assertTrueValue(
+    str_contains($js, 'previousBodyOverflow')
+);
+
+assertTrueValue(
+    str_contains($js, 'event.key === \'Escape\'')
+);
+
+assertTrueValue(
+    str_contains($js, 'backdrop?.addEventListener')
+);
+
+assertTrueValue(
+    str_contains($css, 'overflow-x: hidden')
+);

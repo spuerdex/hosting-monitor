@@ -55,6 +55,8 @@ body {
     min-height: 100vh;
     margin: 0;
 
+    overflow-x: hidden;
+
     background: var(--background);
 
     color: var(--text);
@@ -428,6 +430,8 @@ a {
 }
 
 .topbar-left {
+    min-width: 0;
+
     display: flex;
     align-items: center;
 
@@ -456,6 +460,36 @@ a {
     align-items: center;
 
     gap: 15px;
+}
+
+.monitoring-context {
+    min-width: 0;
+
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+
+    gap: 4px 12px;
+
+    margin-left: auto;
+
+    color: var(--muted);
+
+    font-size: 10px;
+    line-height: 1.4;
+}
+
+.monitoring-context-label {
+    flex-basis: 100%;
+
+    color: var(--text);
+
+    font-size: 11px;
+    font-weight: 750;
+}
+
+.monitoring-context-item {
+    white-space: nowrap;
 }
 
 .admin-profile {
@@ -1883,6 +1917,8 @@ tr:hover {
 
     .topbar-title {
         font-size: 17px;
+
+        overflow-wrap: anywhere;
     }
 
     .admin-copy {
@@ -1892,6 +1928,10 @@ tr:hover {
     .admin-avatar {
         width: 35px;
         height: 35px;
+    }
+
+    .monitoring-context {
+        display: none;
     }
 
     .logout-button {

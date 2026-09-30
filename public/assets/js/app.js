@@ -10,6 +10,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const backdrop =
         document.querySelector('[data-sidebar-backdrop]');
 
+    let previousBodyOverflow = '';
+
     const openSidebar = () => {
         if (!sidebar) {
             return;
@@ -17,6 +19,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         sidebar.classList.add('is-open');
         backdrop?.classList.add('is-visible');
+
+        previousBodyOverflow = document.body.style.overflow;
         document.body.classList.add('sidebar-open');
 
         sidebarToggle?.setAttribute(
@@ -33,6 +37,8 @@ document.addEventListener('DOMContentLoaded', () => {
         sidebar.classList.remove('is-open');
         backdrop?.classList.remove('is-visible');
         document.body.classList.remove('sidebar-open');
+        document.body.style.overflow = previousBodyOverflow;
+        previousBodyOverflow = '';
 
         sidebarToggle?.setAttribute(
             'aria-expanded',

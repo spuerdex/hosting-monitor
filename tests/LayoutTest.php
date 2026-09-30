@@ -78,3 +78,27 @@ assertTrueValue(
 assertTrueValue(
     str_contains($html, 'type="button"')
 );
+
+assertTrueValue(
+    str_contains($html, 'data-monitoring-context')
+);
+
+assertTrueValue(
+    str_contains($html, 'data-host-count')
+);
+
+assertTrueValue(
+    str_contains($html, 'data-monitoring-status')
+);
+
+assertTrueValue(
+    str_contains($html, 'data-last-refresh')
+);
+
+assertTrueValue(
+    str_contains($html, 'aria-controls="primary-navigation"')
+);
+
+assertTrueValue(
+    str_contains($html, 'id="primary-navigation"')
+);
