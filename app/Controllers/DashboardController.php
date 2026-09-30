@@ -24,6 +24,37 @@ final class DashboardController
             $status['backup']
             ?? [];
 
+        $host =
+            $status['host']
+            ?? [];
+
+        $program = htmlspecialchars(
+            (string)(
+                $host['program_code']
+                ?? '-'
+            ),
+            ENT_QUOTES,
+            'UTF-8'
+        );
+
+        $hostname = htmlspecialchars(
+            (string)(
+                $host['hostname']
+                ?? '-'
+            ),
+            ENT_QUOTES,
+            'UTF-8'
+        );
+
+        $hostIp = htmlspecialchars(
+            (string)(
+                $host['ip']
+                ?? '-'
+            ),
+            ENT_QUOTES,
+            'UTF-8'
+        );
+
         $overall = htmlspecialchars(
             (string)(
                 $status['overall_status']
@@ -129,7 +160,10 @@ final class DashboardController
     </div>
 
     <div class="metric-sub">
-        Current hosting status
+        Current hosting status<br>
+        Program: {$program}<br>
+        Host: {$hostname}<br>
+        IP Address: {$hostIp}
     </div>
 
 </div>
