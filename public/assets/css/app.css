@@ -898,6 +898,28 @@ a {
         );
 }
 
+.progress-fill-warning {
+    background:
+        linear-gradient(
+            90deg,
+            #D98700,
+            #F4B84D
+        );
+}
+
+.progress-fill-danger {
+    background:
+        linear-gradient(
+            90deg,
+            #CE4230,
+            #F07866
+        );
+}
+
+.progress-fill-muted {
+    background: #AEB5BE;
+}
+
 .recent-panel {
     padding: 22px;
 }
@@ -1495,6 +1517,63 @@ tr:hover {
     gap: 13px;
 }
 
+.monitoring-host-panel {
+    margin-top: 18px;
+    padding: 22px;
+    border-left: 4px solid var(--success);
+}
+
+.monitoring-host-panel.dashboard-host-warning {
+    border-left-color: var(--warning);
+}
+
+.monitoring-host-panel.dashboard-host-stale,
+.monitoring-host-panel.dashboard-host-unavailable {
+    border-left-color: var(--danger);
+}
+
+.monitoring-host-panel .service-status-grid,
+.monitoring-host-panel .storage-grid {
+    margin-top: 18px;
+}
+
+.storage-threshold {
+    display: block;
+    margin-top: 10px;
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.dashboard-host-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    flex: 0 0 auto;
+    padding: 5px 7px;
+    border-radius: 99px;
+    color: var(--success);
+    background: var(--success-bg);
+    font-size: 10px;
+    font-weight: 800;
+}
+
+.dashboard-host-warning .dashboard-host-status {
+    color: var(--warning);
+    background: var(--warning-bg);
+}
+
+.dashboard-host-stale .dashboard-host-status,
+.dashboard-host-unavailable .dashboard-host-status {
+    color: var(--danger);
+    background: var(--danger-bg);
+}
+
+.dashboard-host-status-icon {
+    font-size: 12px;
+    font-weight: 900;
+}
+
 .service-card {
     padding: 18px;
 }
@@ -1624,6 +1703,10 @@ tr:hover {
     color: #888;
 
     font-size: 11px;
+}
+
+.backup-size-label {
+    display: block;
 }
 
 .backup-policy-grid {

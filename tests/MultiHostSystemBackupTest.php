@@ -236,6 +236,34 @@ if (
             'progress-track'
         )
     );
+
+    assertTrueValue(
+        str_contains(
+            $systemHtml,
+            'dashboard-host-warning'
+        )
+    );
+
+    assertTrueValue(
+        str_contains(
+            $systemHtml,
+            'dashboard-host-unavailable'
+        )
+    );
+
+    assertTrueValue(
+        str_contains(
+            $systemHtml,
+            'aria-label="Nginx: Unavailable"'
+        )
+    );
+
+    assertTrueValue(
+        str_contains(
+            $systemHtml,
+            'data-storage-threshold="warning"'
+        )
+    );
 }
 
 
@@ -326,6 +354,27 @@ if (
         || str_contains(
             $backupHtml,
             'backup-policy-grid'
+        )
+    );
+
+    assertTrueValue(
+        str_contains(
+            $backupHtml,
+            'Last backup timestamp'
+        )
+    );
+
+    assertTrueValue(
+        str_contains(
+            $backupHtml,
+            'data-backup-status="unavailable"'
+        )
+    );
+
+    assertTrueValue(
+        !str_contains(
+            $backupHtml,
+            'backup-action'
         )
     );
 }

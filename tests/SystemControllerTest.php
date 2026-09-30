@@ -31,3 +31,9 @@ assertTrueValue(str_contains($html, 'PHP-FPM'));
 assertTrueValue(str_contains($html, 'MariaDB'));
 assertTrueValue(str_contains($html, 'UFW'));
 assertTrueValue(str_contains($html, '11%'));
+
+assertTrueValue(str_contains($html, 'Root Disk'));
+assertTrueValue(str_contains($html, 'Student Disk'));
+assertTrueValue(str_contains($html, 'data-storage-threshold="healthy"'));
+assertTrueValue(str_contains($html, 'aria-label="Nginx: Running"'));
+assertTrueValue(str_contains($html, 'status-success'));

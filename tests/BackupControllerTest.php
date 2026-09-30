@@ -27,3 +27,8 @@ assertTrueValue(
 assertTrueValue(
     str_contains($html, '14 วัน')
 );
+
+assertTrueValue(str_contains($html, 'data-backup-status="available"'));
+assertTrueValue(str_contains($html, 'Last backup timestamp'));
+assertTrueValue(str_contains($html, 'backup-size-label'));
+assertTrueValue(!str_contains($html, 'backup-action'));
