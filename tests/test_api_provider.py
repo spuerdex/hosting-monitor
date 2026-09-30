@@ -2,6 +2,27 @@ import unittest
 
 
 class ApiProviderTests(unittest.TestCase):
+    def test_fetch_status_reads_real_local_mock_api(self):
+        from ops.api_provider import fetch_status
+        from ops.mock_api_server import MockStatusServer
+
+        payload = {"schema_version": 1, "overall_status": "HEALTHY"}
+        server = MockStatusServer({"cs": payload}, port=0)
+
+        try:
+            server.start()
+            result = fetch_status(
+                {
+                    "base_url": server.base_url("cs"),
+                    "timeout_seconds": 3,
+                    "api_token": "local-token",
+                }
+            )
+        finally:
+            server.stop()
+
+        self.assertEqual(result, payload)
+
     def test_fetch_status_uses_host_url_and_bearer_token(self):
         from ops.api_provider import fetch_status
 

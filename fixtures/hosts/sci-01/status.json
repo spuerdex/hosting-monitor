@@ -1,0 +1,224 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-09-30T12:00:00Z",
+  "overall_status": "WARNING",
+  "services": {
+    "nginx": true,
+    "php_fpm": false,
+    "mariadb": true,
+    "ssh": true,
+    "ufw": true
+  },
+  "storage": {
+    "root": {
+      "used_percent": 83
+    },
+    "student": {
+      "used_percent": 79
+    }
+  },
+  "summary": {
+    "students": 16,
+    "enabled": 14,
+    "suspended": 2,
+    "warnings": 3
+  },
+  "backup": {
+    "last_backup": "2026-09-30T10:30:00Z",
+    "size_bytes": 258998272
+  },
+  "students": [
+    {
+      "student_id": "SCI-001",
+      "username": "sci001",
+      "domain": "sci-01-001.demo.local",
+      "status": "enabled",
+      "php_pool": false,
+      "quota": {
+        "used_mb": 306,
+        "soft_mb": 1024,
+        "hard_mb": 2048
+      }
+    },
+    {
+      "student_id": "SCI-002",
+      "username": "sci002",
+      "domain": "sci-01-002.demo.local",
+      "status": "enabled",
+      "php_pool": false,
+      "quota": {
+        "used_mb": 379,
+        "soft_mb": 1024,
+        "hard_mb": 2048
+      }
+    },
+    {
+      "student_id": "SCI-003",
+      "username": "sci003",
+      "domain": "sci-01-003.demo.local",
+      "status": "enabled",
+      "php_pool": false,
+      "quota": {
+        "used_mb": 452,
+        "soft_mb": 1024,
+        "hard_mb": 2048
+      }
+    },
+    {
+      "student_id": "SCI-004",
+      "username": "sci004",
+      "domain": "sci-01-004.demo.local",
+      "status": "enabled",
+      "php_pool": false,
+      "quota": {
+        "used_mb": 525,
+        "soft_mb": 1024,
+        "hard_mb": 2048
+      }
+    },
+    {
+      "student_id": "SCI-005",
+      "username": "sci005",
+      "domain": "sci-01-005.demo.local",
+      "status": "enabled",
+      "php_pool": false,
+      "quota": {
+        "used_mb": 598,
+        "soft_mb": 1024,
+        "hard_mb": 2048
+      }
+    },
+    {
+      "student_id": "SCI-006",
+      "username": "sci006",
+      "domain": "sci-01-006.demo.local",
+      "status": "enabled",
+      "php_pool": false,
+      "quota": {
+        "used_mb": 671,
+        "soft_mb": 1024,
+        "hard_mb": 2048
+      }
+    },
+    {
+      "student_id": "SCI-007",
+      "username": "sci007",
+      "domain": "sci-01-007.demo.local",
+      "status": "enabled",
+      "php_pool": false,
+      "quota": {
+        "used_mb": 744,
+        "soft_mb": 1024,
+        "hard_mb": 2048
+      }
+    },
+    {
+      "student_id": "SCI-008",
+      "username": "sci008",
+      "domain": "sci-01-008.demo.local",
+      "status": "enabled",
+      "php_pool": false,
+      "quota": {
+        "used_mb": 817,
+        "soft_mb": 1024,
+        "hard_mb": 2048
+      }
+    },
+    {
+      "student_id": "SCI-009",
+      "username": "sci009",
+      "domain": "sci-01-009.demo.local",
+      "status": "enabled",
+      "php_pool": false,
+      "quota": {
+        "used_mb": 890,
+        "soft_mb": 1024,
+        "hard_mb": 2048
+      }
+    },
+    {
+      "student_id": "SCI-010",
+      "username": "sci010",
+      "domain": "sci-01-010.demo.local",
+      "status": "enabled",
+      "php_pool": false,
+      "quota": {
+        "used_mb": 963,
+        "soft_mb": 1024,
+        "hard_mb": 2048
+      }
+    },
+    {
+      "student_id": "SCI-011",
+      "username": "sci011",
+      "domain": "sci-01-011.demo.local",
+      "status": "enabled",
+      "php_pool": false,
+      "quota": {
+        "used_mb": 1036,
+        "soft_mb": 1024,
+        "hard_mb": 2048
+      }
+    },
+    {
+      "student_id": "SCI-012",
+      "username": "sci012",
+      "domain": "sci-01-012.demo.local",
+      "status": "enabled",
+      "php_pool": false,
+      "quota": {
+        "used_mb": 1109,
+        "soft_mb": 1024,
+        "hard_mb": 2048
+      }
+    },
+    {
+      "student_id": "SCI-013",
+      "username": "sci013",
+      "domain": "sci-01-013.demo.local",
+      "status": "enabled",
+      "php_pool": false,
+      "quota": {
+        "used_mb": 1182,
+        "soft_mb": 1024,
+        "hard_mb": 2048
+      }
+    },
+    {
+      "student_id": "SCI-014",
+      "username": "sci014",
+      "domain": "sci-01-014.demo.local",
+      "status": "enabled",
+      "php_pool": false,
+      "quota": {
+        "used_mb": 1255,
+        "soft_mb": 1024,
+        "hard_mb": 2048
+      }
+    },
+    {
+      "student_id": "SCI-015",
+      "username": "sci015",
+      "domain": "sci-01-015.demo.local",
+      "status": "suspended",
+      "php_pool": false,
+      "quota": {
+        "used_mb": 1328,
+        "soft_mb": 1024,
+        "hard_mb": 2048
+      }
+    },
+    {
+      "student_id": "SCI-016",
+      "username": "sci016",
+      "domain": "sci-01-016.demo.local",
+      "status": "suspended",
+      "php_pool": false,
+      "quota": {
+        "used_mb": 1401,
+        "soft_mb": 1024,
+        "hard_mb": 2048
+      }
+    }
+  ]
+}

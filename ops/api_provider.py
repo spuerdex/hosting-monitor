@@ -5,7 +5,11 @@ import os
 from typing import Callable
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlparse
-from urllib.request import Request, build_opener
+from urllib.request import (
+    HTTPRedirectHandler,
+    Request,
+    build_opener,
+)
 
 
 MAX_STATUS_BYTES = 1024 * 1024
@@ -40,7 +44,7 @@ def _default_transport(
         ) from exc
 
 
-class _NoRedirectHandler:
+class _NoRedirectHandler(HTTPRedirectHandler):
     def redirect_request(self, request, fp, code, msg, headers, new_url):
         return None
 

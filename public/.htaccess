@@ -1,0 +1,9 @@
+RewriteEngine On
+
+# Keep existing assets and files accessible directly.
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# Route application URLs to the PHP front controller.
+RewriteRule ^ index.php [QSA,L]

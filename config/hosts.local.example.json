@@ -2,20 +2,44 @@
   "schema_version": 2,
   "hosts": [
     {
-      "code": "cs",
-      "name": "Computer Science (Local)",
+      "code": "cs-01",
+      "name": "Computer Science VM 01 (Local)",
       "base_url": "http://127.0.0.1:9001/api",
       "enabled": true,
       "timeout_seconds": 3,
-      "api_token_env": "LOCAL_CS_API_TOKEN"
+      "api_token_env": "LOCAL_CS01_API_TOKEN"
     },
     {
-      "code": "it",
-      "name": "Information Technology (Local)",
+      "code": "cs-02",
+      "name": "Computer Science VM 02 (Local)",
       "base_url": "http://127.0.0.1:9002/api",
       "enabled": true,
       "timeout_seconds": 3,
-      "api_token_env": "LOCAL_IT_API_TOKEN"
+      "api_token_env": "LOCAL_CS02_API_TOKEN"
+    },
+    {
+      "code": "it-01",
+      "name": "Information Technology VM 01 (Local)",
+      "base_url": "http://127.0.0.1:9003/api",
+      "enabled": true,
+      "timeout_seconds": 3,
+      "api_token_env": "LOCAL_IT01_API_TOKEN"
+    },
+    {
+      "code": "eng-01",
+      "name": "Engineering VM 01 (Local)",
+      "base_url": "http://127.0.0.1:9004/api",
+      "enabled": true,
+      "timeout_seconds": 3,
+      "api_token_env": "LOCAL_ENG01_API_TOKEN"
+    },
+    {
+      "code": "sci-01",
+      "name": "Science VM 01 (Local)",
+      "base_url": "http://127.0.0.1:9005/api",
+      "enabled": true,
+      "timeout_seconds": 3,
+      "api_token_env": "LOCAL_SCI01_API_TOKEN"
     }
   ]
 }

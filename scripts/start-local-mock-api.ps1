@@ -1,6 +1,9 @@
 param(
-    [int]$ComputerSciencePort = 9001,
-    [int]$InformationTechnologyPort = 9002
+    [int]$ComputerScience01Port = 9001,
+    [int]$ComputerScience02Port = 9002,
+    [int]$InformationTechnology01Port = 9003,
+    [int]$Engineering01Port = 9004,
+    [int]$Science01Port = 9005
 )
 
 $ErrorActionPreference = 'Stop'
@@ -10,16 +13,37 @@ $processes = @(
     Start-Process -FilePath 'python' -WorkingDirectory $root -PassThru `
         -ArgumentList @(
             'ops/mock_api_server.py',
-            '--code', 'cs',
-            '--fixture', 'fixtures/hosts/cs/status.json',
-            '--port', $ComputerSciencePort
+            '--code', 'cs-01',
+            '--fixture', 'fixtures/hosts/cs-01/status.json',
+            '--port', $ComputerScience01Port
         )
     Start-Process -FilePath 'python' -WorkingDirectory $root -PassThru `
         -ArgumentList @(
             'ops/mock_api_server.py',
-            '--code', 'it',
-            '--fixture', 'fixtures/hosts/it/status.json',
-            '--port', $InformationTechnologyPort
+            '--code', 'cs-02',
+            '--fixture', 'fixtures/hosts/cs-02/status.json',
+            '--port', $ComputerScience02Port
+        )
+    Start-Process -FilePath 'python' -WorkingDirectory $root -PassThru `
+        -ArgumentList @(
+            'ops/mock_api_server.py',
+            '--code', 'it-01',
+            '--fixture', 'fixtures/hosts/it-01/status.json',
+            '--port', $InformationTechnology01Port
+        )
+    Start-Process -FilePath 'python' -WorkingDirectory $root -PassThru `
+        -ArgumentList @(
+            'ops/mock_api_server.py',
+            '--code', 'eng-01',
+            '--fixture', 'fixtures/hosts/eng-01/status.json',
+            '--port', $Engineering01Port
+        )
+    Start-Process -FilePath 'python' -WorkingDirectory $root -PassThru `
+        -ArgumentList @(
+            'ops/mock_api_server.py',
+            '--code', 'sci-01',
+            '--fixture', 'fixtures/hosts/sci-01/status.json',
+            '--port', $Science01Port
         )
 )
 

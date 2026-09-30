@@ -10,9 +10,9 @@ $path = dirname(__DIR__)
 $hosts = Config::loadHostRegistry($path);
 
 assertSameValue(
-    2,
+    5,
     count($hosts),
-    'local workflow must include multiple hosts'
+    'local workflow must include five demo hosts'
 );
 
 foreach ($hosts as $host) {
@@ -33,7 +33,7 @@ foreach ($hosts as $host) {
 
 $fixtureRoot = dirname(__DIR__) . '/fixtures/hosts';
 
-foreach (['cs', 'it'] as $code) {
+foreach (['cs-01', 'cs-02', 'it-01', 'eng-01', 'sci-01'] as $code) {
     assertTrueValue(
         is_file($fixtureRoot . '/' . $code . '/status.json'),
         'fixture must exist for each local host'
