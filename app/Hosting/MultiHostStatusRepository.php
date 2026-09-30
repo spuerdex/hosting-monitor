@@ -25,9 +25,11 @@ final class MultiHostStatusRepository
 
         $registry = $this->readJson($this->registryPath);
 
+        $schemaVersion = $registry['schema_version'] ?? null;
+
         if (
             $registry === null
-            || ($registry['schema_version'] ?? null) !== 1
+            || !in_array($schemaVersion, [1, 2], true)
             || !isset($registry['hosts'])
             || !is_array($registry['hosts'])
             || !array_is_list($registry['hosts'])
@@ -45,40 +47,80 @@ final class MultiHostStatusRepository
 
             $code = $host['code'] ?? null;
             $enabled = $host['enabled'] ?? null;
-
-            if (
-                !is_string($code)
-                || preg_match('/^[a-z][a-z0-9_-]{0,31}$/D', $code) !== 1
-                || in_array($code, ['status', 'metadata'], true)
-                || !is_string($host['ip'] ?? null)
-                || filter_var(
-                    $host['ip'],
-                    FILTER_VALIDATE_IP,
-                    FILTER_FLAG_IPV4
-                ) === false
-                || !is_bool($enabled)
-            ) {
-                throw new RuntimeException('Invalid host registry.');
-            }
-
-            // Accept only the fields defined by Host Registry v1.
-            $expectedFields = [
-                'code',
-                'enabled',
-                'ip',
-                'name',
-                'ssh_user',
-            ];
-
             $actualFields = array_keys($host);
             sort($actualFields);
 
-            if (
-                $actualFields !== $expectedFields
-                || !is_string($host['name'])
-                || trim($host['name']) === ''
-                || $host['ssh_user'] !== 'hostingportal'
-            ) {
+            $isValidCommonHost =
+                is_string($code)
+                && preg_match(
+                    '/^[a-z][a-z0-9_-]{0,31}$/D',
+                    $code
+                ) === 1
+                && !in_array(
+                    $code,
+                    ['status', 'metadata'],
+                    true
+                )
+                && is_bool($enabled);
+
+            $isValidLegacyHost =
+                $schemaVersion === 1
+                && is_string($host['ip'] ?? null)
+                && filter_var(
+                    $host['ip'],
+                    FILTER_VALIDATE_IP,
+                    FILTER_FLAG_IPV4
+                ) !== false
+                && $actualFields === [
+                    'code',
+                    'enabled',
+                    'ip',
+                    'name',
+                    'ssh_user',
+                ]
+                && is_string($host['name'] ?? null)
+                && trim($host['name']) !== ''
+                && ($host['ssh_user'] ?? null) === 'hostingportal';
+
+            $baseUrl = $host['base_url'] ?? null;
+            $parsedBaseUrl = is_string($baseUrl)
+                ? parse_url($baseUrl)
+                : false;
+
+            $isValidApiHost =
+                $schemaVersion === 2
+                && is_string($baseUrl)
+                && is_array($parsedBaseUrl)
+                && in_array(
+                    strtolower(
+                        (string)($parsedBaseUrl['scheme'] ?? '')
+                    ),
+                    ['http', 'https'],
+                    true
+                )
+                && isset($parsedBaseUrl['host'])
+                && !isset($parsedBaseUrl['query'])
+                && !isset($parsedBaseUrl['fragment'])
+                && is_int($host['timeout_seconds'] ?? null)
+                && $host['timeout_seconds'] >= 1
+                && $host['timeout_seconds'] <= 60
+                && is_string($host['api_token_env'] ?? null)
+                && preg_match(
+                    '/^[A-Z][A-Z0-9_]*$/D',
+                    $host['api_token_env']
+                ) === 1
+                && $actualFields === [
+                    'api_token_env',
+                    'base_url',
+                    'code',
+                    'enabled',
+                    'name',
+                    'timeout_seconds',
+                ]
+                && is_string($host['name'] ?? null)
+                && trim($host['name']) !== '';
+
+            if (!$isValidCommonHost || (!$isValidLegacyHost && !$isValidApiHost)) {
                 throw new RuntimeException('Invalid host registry.');
             }
 
@@ -95,7 +137,12 @@ final class MultiHostStatusRepository
             $record = [
                 'code' => $code,
                 'name' => $host['name'] ?? $code,
-                'ip' => $host['ip'] ?? '',
+                'ip' => $host['ip']
+                    ?? (
+                        is_array($parsedBaseUrl)
+                            ? ($parsedBaseUrl['host'] ?? '')
+                            : ''
+                    ),
                 'fetch_state' => 'UNKNOWN',
                 'display_state' => 'UNAVAILABLE',
                 'last_attempt' => null,
