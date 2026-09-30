@@ -71,7 +71,7 @@ final class ManualController
 
         $cards = '';
 
-        foreach ($items as [
+        foreach ($items as $index => [
             $title,
             $description,
             $command
@@ -94,16 +94,25 @@ final class ManualController
                 'UTF-8'
             );
 
-            $cards .= <<<HTML
-<article class="surface command-card">
+            $titleId = 'manual-command-title-' . $index;
 
-<h3>{$safeTitle}</h3>
+            $cards .= <<<HTML
+<article
+    class="surface command-card"
+    aria-labelledby="{$titleId}"
+>
+
+<h3 id="{$titleId}">{$safeTitle}</h3>
 
 <p class="command-description">
 {$safeDescription}
 </p>
 
-<div class="command-box">
+<div
+    class="command-box"
+    role="group"
+    aria-label="Command reference for {$safeTitle}"
+>
 
 <code>{$safeCommand}</code>
 
@@ -111,9 +120,17 @@ final class ManualController
     type="button"
     class="command-copy"
     data-copy-command="{$safeCommand}"
+    aria-label="Copy command: {$safeTitle}"
+    data-copy-feedback
 >
 คัดลอก
 </button>
+
+<span
+    class="sr-only"
+    data-copy-feedback-message
+    aria-live="polite"
+></span>
 
 </div>
 
@@ -122,10 +139,18 @@ HTML;
         }
 
         $content = <<<HTML
+<section
+    class="manual-page"
+    aria-labelledby="manual-title"
+>
+
 <div class="page-heading">
 
 <div>
-    <h2 class="page-title">
+    <h2
+        class="page-title"
+        id="manual-title"
+    >
         Administrator Manual
     </h2>
 
@@ -137,7 +162,20 @@ HTML;
 </div>
 
 
-<div class="security-notice">
+<div
+    class="manual-read-only-label"
+    aria-label="Manual access mode"
+>
+    <span class="manual-read-only-icon" aria-hidden="true">●</span>
+    <span>Read-only monitoring reference</span>
+</div>
+
+
+<div
+    class="security-notice"
+    role="note"
+    aria-labelledby="manual-security-title"
+>
 
 <div class="security-notice-icon">
 !
@@ -145,7 +183,7 @@ HTML;
 
 <div>
 
-<strong>
+<strong id="manual-security-title">
 Security Notice
 </strong>
 
@@ -161,9 +199,14 @@ Server Administration Terminal เท่านั้น
 </div>
 
 
-<div class="command-grid">
+<div
+    class="command-grid"
+    aria-label="Manual command reference"
+>
 {$cards}
 </div>
+
+</section>
 HTML;
 
         return Layout::render(

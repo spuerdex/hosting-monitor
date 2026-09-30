@@ -250,6 +250,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     const originalText =
                         button.textContent;
 
+                    const feedback =
+                        button.parentElement?.querySelector(
+                            '[data-copy-feedback-message]'
+                        );
+
                     try {
                         await navigator
                             .clipboard
@@ -259,6 +264,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
                         button.textContent =
                             'คัดลอกแล้ว ✓';
+
+                        if (feedback) {
+                            feedback.textContent =
+                                'คัดลอกคำสั่งแล้ว';
+                        }
                     } catch (error) {
                         const textarea =
                             document.createElement(
@@ -288,12 +298,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
                         button.textContent =
                             'คัดลอกแล้ว ✓';
+
+                        if (feedback) {
+                            feedback.textContent =
+                                'คัดลอกคำสั่งแล้ว';
+                        }
                     }
 
                     window.setTimeout(
                         () => {
                             button.textContent =
                                 originalText;
+
+                            if (feedback) {
+                                feedback.textContent = '';
+                            }
                         },
                         1600
                     );
