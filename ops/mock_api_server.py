@@ -51,12 +51,14 @@ class MockStatusServer:
 
         class Handler(BaseHTTPRequestHandler):
             def do_GET(self):
-                prefix, separator, rest = self.path.strip("/").partition("/")
+                stripped_path = self.path.strip("/")
 
-                valid_path = rest == "api/status"
-
-                if not valid_path and len(fixtures) == 1:
-                    valid_path = self.path.strip("/") == "api/status"
+                if stripped_path == "api/status" and len(fixtures) == 1:
+                    prefix = next(iter(fixtures))
+                    valid_path = True
+                else:
+                    prefix, separator, rest = stripped_path.partition("/")
+                    valid_path = separator == "/" and rest == "api/status"
 
                 if not valid_path:
                     self.send_error(404)

@@ -1,4 +1,5 @@
 import unittest
+from urllib.request import urlopen
 
 
 class MockApiServerTests(unittest.TestCase):
@@ -22,6 +23,27 @@ class MockApiServerTests(unittest.TestCase):
                 server.get_status("it"),
                 fixtures["it"],
             )
+
+            single_server = MockStatusServer(
+                {"cs": fixtures["cs"]},
+                host="127.0.0.1",
+                port=0,
+            )
+
+            try:
+                single_server.start()
+                host, port = single_server.address
+
+                with urlopen(
+                    f"http://{host}:{port}/api/status",
+                    timeout=2,
+                ) as response:
+                    self.assertEqual(
+                        response.status,
+                        200,
+                    )
+            finally:
+                single_server.stop()
         finally:
             server.stop()
 
