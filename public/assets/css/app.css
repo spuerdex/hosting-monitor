@@ -1,4 +1,30 @@
 :root {
+    --canvas: #F5F6F8;
+    --rail: #252525;
+    --surface: #FFFFFF;
+    --surface-raised: #FFFFFF;
+    --border-subtle: #E7E9ED;
+    --text-strong: #242424;
+    --text-muted: #7A7A7A;
+    --status-success: #159455;
+    --status-warning: #D98700;
+    --status-danger: #CE4230;
+    --status-info: #2D6CDF;
+
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+
+    --shadow-sm: 0 2px 8px rgba(27,31,36,.06);
+    --shadow-md: 0 10px 35px rgba(27,31,36,.065);
+
     --sidebar: #252525;
     --sidebar-soft: #303030;
     --sidebar-hover: #393939;
@@ -67,6 +93,24 @@ select {
 
 a {
     color: inherit;
+}
+
+:where(a, button, input, select, textarea):focus-visible {
+    outline: 3px solid
+        color-mix(in srgb, var(--primary) 55%, white);
+
+    outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        transition-duration: .01ms !important;
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+    }
 }
 
 

@@ -38,3 +38,19 @@ assertTrueValue(
 assertTrueValue(
     str_contains($html, 'Faculty of Digital Technology')
 );
+
+assertTrueValue(
+    str_contains($html, 'Monitoring Portal')
+);
+
+assertTrueValue(
+    str_contains($html, 'sidebar-status')
+);
+
+assertTrueValue(
+    str_contains($html, 'aria-expanded="false"')
+);
+
+assertTrueValue(
+    str_contains($html, 'type="button"')
+);

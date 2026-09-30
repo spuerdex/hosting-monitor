@@ -339,3 +339,17 @@ assertTrueValue(
         'data-copy-command'
     )
 );
+
+assertTrueValue(
+    str_contains(
+        $js,
+        'data-refresh-status'
+    )
+);
+
+assertTrueValue(
+    str_contains(
+        $js,
+        'data-status-feedback'
+    )
+);

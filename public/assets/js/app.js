@@ -157,6 +157,42 @@ document.addEventListener('DOMContentLoaded', () => {
     );
 
 
+    const statusFeedback =
+        document.querySelector('[data-status-feedback]');
+
+    statusFeedback?.setAttribute(
+        'aria-live',
+        'polite'
+    );
+
+    document
+        .querySelectorAll('[data-refresh-status]')
+        .forEach(button => {
+            button.addEventListener(
+                'click',
+                () => {
+                    if (!statusFeedback) {
+                        return;
+                    }
+
+                    const originalText =
+                        statusFeedback.textContent;
+
+                    statusFeedback.textContent =
+                        'ตรวจสอบสถานะล่าสุดแล้ว';
+
+                    window.setTimeout(
+                        () => {
+                            statusFeedback.textContent =
+                                originalText;
+                        },
+                        1600
+                    );
+                }
+            );
+        });
+
+
     document
         .querySelectorAll(
             '[data-copy-command]'
