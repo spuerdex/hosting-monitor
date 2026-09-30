@@ -31,3 +31,76 @@ assertSameValue(
     'digit_hosting_admin',
     $config['DB_NAME']
 );
+
+$registryPath = tempnam(
+    sys_get_temp_dir(),
+    'hosts'
+);
+
+file_put_contents(
+    $registryPath,
+    json_encode([
+        'schema_version' => 2,
+        'hosts' => [
+            [
+                'code' => 'cs',
+                'name' => 'Computer Science',
+                'base_url' => 'http://127.0.0.1:9001/api',
+                'enabled' => true,
+                'timeout_seconds' => 10,
+                'api_token_env' => 'LOCAL_CS_API_TOKEN',
+            ],
+        ],
+    ], JSON_THROW_ON_ERROR)
+);
+
+$hosts = Config::loadHostRegistry($registryPath);
+
+unlink($registryPath);
+
+assertSameValue(
+    'cs',
+    $hosts[0]['code']
+);
+
+assertSameValue(
+    10,
+    $hosts[0]['timeout_seconds']
+);
+
+$invalidRegistryPath = tempnam(
+    sys_get_temp_dir(),
+    'hosts-invalid'
+);
+
+file_put_contents(
+    $invalidRegistryPath,
+    json_encode([
+        'schema_version' => 2,
+        'hosts' => [
+            [
+                'code' => 'cs',
+                'name' => 'Computer Science',
+                'base_url' => 'file:///etc/passwd',
+                'enabled' => true,
+                'timeout_seconds' => 10,
+                'api_token_env' => 'LOCAL_CS_API_TOKEN',
+            ],
+        ],
+    ], JSON_THROW_ON_ERROR)
+);
+
+$rejected = false;
+
+try {
+    Config::loadHostRegistry($invalidRegistryPath);
+} catch (RuntimeException) {
+    $rejected = true;
+} finally {
+    unlink($invalidRegistryPath);
+}
+
+assertTrueValue(
+    $rejected,
+    'non-http host API URL must be rejected'
+);

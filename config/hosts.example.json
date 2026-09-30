@@ -1,19 +1,21 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "hosts": [
     {
       "code": "cs",
       "name": "Computer Science",
-      "ip": "192.0.2.11",
-      "ssh_user": "hostingportal",
-      "enabled": false
+      "base_url": "https://cs-host.example/api",
+      "enabled": false,
+      "timeout_seconds": 10,
+      "api_token_env": "CS_HOST_API_TOKEN"
     },
     {
       "code": "it",
       "name": "Information Technology",
-      "ip": "192.0.2.12",
-      "ssh_user": "hostingportal",
-      "enabled": false
+      "base_url": "https://it-host.example/api",
+      "enabled": false,
+      "timeout_seconds": 10,
+      "api_token_env": "IT_HOST_API_TOKEN"
     }
   ]
 }

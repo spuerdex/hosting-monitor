@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "hosts": [
+    {
+      "code": "cs",
+      "name": "Computer Science (Local)",
+      "base_url": "http://127.0.0.1:9001/api",
+      "enabled": true,
+      "timeout_seconds": 3,
+      "api_token_env": "LOCAL_CS_API_TOKEN"
+    },
+    {
+      "code": "it",
+      "name": "Information Technology (Local)",
+      "base_url": "http://127.0.0.1:9002/api",
+      "enabled": true,
+      "timeout_seconds": 3,
+      "api_token_env": "LOCAL_IT_API_TOKEN"
+    }
+  ]
+}
