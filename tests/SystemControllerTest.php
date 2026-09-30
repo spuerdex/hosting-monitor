@@ -76,3 +76,21 @@ assertTrueValue(str_contains($staleHtml, 'Stale'));
 assertTrueValue(str_contains($staleHtml, 'aria-label="Nginx: Stale"'));
 assertTrueValue(str_contains($staleHtml, 'data-storage-threshold="unavailable"'));
 assertTrueValue(!str_contains($staleHtml, '91%'));
+
+$staleNullHtml = (new SystemController())->monitoringPage(
+    ['display_name' => 'admin'],
+    [
+        'cs' => [
+            'code' => 'cs',
+            'name' => 'Computer Science',
+            'ip' => '192.0.2.11',
+            'display_state' => 'STALE',
+            'status' => null,
+        ],
+    ]
+);
+
+assertTrueValue(str_contains($staleNullHtml, 'data-host-state="STALE"'));
+assertTrueValue(str_contains($staleNullHtml, 'aria-label="Nginx: Stale"'));
+assertTrueValue(str_contains($staleNullHtml, 'data-service-state="Stale"'));
+assertTrueValue(!str_contains($staleNullHtml, 'aria-label="Nginx: Unavailable"'));

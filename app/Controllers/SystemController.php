@@ -342,9 +342,9 @@ HTML;
                     ?? false
                 );
 
-                $state = $isUnavailable
-                    ? 'Unavailable'
-                    : ($isStale ? 'Stale' : ($running ? 'Running' : 'Unavailable'));
+                $state = $isStale
+                    ? 'Stale'
+                    : ($isUnavailable ? 'Unavailable' : ($running ? 'Running' : 'Unavailable'));
 
                 $indicatorClass = $running && !$isStale
                     ? 'service-indicator-up'

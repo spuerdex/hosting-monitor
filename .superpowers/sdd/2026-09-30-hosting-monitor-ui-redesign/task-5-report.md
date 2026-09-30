@@ -37,3 +37,15 @@ Implemented host-scannable System and Backup presentation using the existing nor
 - `git diff --check` — passed.
 - `C:\wamp64\bin\php\php8.3.14\php.exe tests/run.php` — all Task 5-focused tests passed.
 - Existing environment-only failures remain unchanged: missing `sysadmin` fixture and denied Windows symlink creation.
+
+## Fix Round 2
+
+- Corrected SystemController stale/null service state precedence so stale host service cards say `Stale`, never `Unavailable`.
+- Preserved explicit state icons/labels and existing healthy/unavailable behavior.
+- Added a focused stale/null regression assertion covering host state, service state, and the absence of the unavailable label.
+
+### Fix Verification
+
+- SystemControllerTest.php + MultiHostSystemBackupTest.php — passed.
+- PHP lint for SystemController.php — passed.
+- `git diff --check` — passed.
