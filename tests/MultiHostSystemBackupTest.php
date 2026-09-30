@@ -515,6 +515,14 @@ if (
             '81%'
         )
     );
+
+    assertTrueValue(str_contains($aiBlock, 'service-status-grid'));
+    assertTrueValue(str_contains($aiBlock, 'storage-grid'));
+    assertTrueValue(str_contains($aiBlock, 'Root Disk'));
+    assertTrueValue(str_contains($aiBlock, 'Student Disk'));
+    assertTrueValue(str_contains($aiBlock, 'Unavailable'));
+    assertTrueValue(str_contains($aiBlock, '—'));
+    assertTrueValue(!str_contains($aiBlock, '0%'));
 }
 
 
@@ -607,6 +615,10 @@ if (
             '8.00 MB'
         )
     );
+
+    assertTrueValue(str_contains($aiBlock, 'Last backup timestamp'));
+    assertTrueValue(str_contains($aiBlock, 'Backup size'));
+    assertTrueValue(str_contains($aiBlock, '—'));
 }
 /*
 |--------------------------------------------------------------------------

@@ -39,7 +39,7 @@ final class BackupController
                 / 1048576,
                 2
             ) . ' MB'
-            : 'ไม่ทราบ';
+            : '—';
 
         $statusText =
             $available
@@ -275,65 +275,8 @@ HTML;
             |
             */
 
-            if (!is_array($status)) {
-                $unavailableLabel = $rawState === 'STALE'
-                    ? 'Stale'
-                    : 'Unavailable';
-
-                $hostsHtml .= <<<HTML
-<section class="surface monitoring-host-panel backup-host-panel {$stateClass}" data-host-state="{$rawState}">
-
-<div class="section-heading">
-
-    <div>
-        <h2>{$name}</h2>
-
-        <p>
-            Host: {$code}
-            · {$ip}
-        </p>
-    </div>
-
-    <span class="dashboard-host-status" aria-label="Status: {$displayState}">
-        <span class="dashboard-host-status-icon" aria-hidden="true">{$stateIcon}</span>
-        <span>{$displayState}</span>
-    </span>
-
-</div>
-
-<div class="surface recent-panel" data-backup-status="{$backupStatusKey}">
-
-    <div class="info-item">
-
-        <span class="info-label">
-            Current Backup Data
-        </span>
-
-            <strong class="info-value">
-                {$unavailableLabel}
-        </strong>
-
-    </div>
-
-    <div class="info-item">
-
-        <span class="info-label">
-            Host State
-        </span>
-
-        <strong class="info-value">
-            {$displayState}
-        </strong>
-
-    </div>
-
-</div>
-
-</section>
-HTML;
-
-                continue;
-            }
+            $statusAvailable = is_array($status);
+            $status = $statusAvailable ? $status : [];
 
             $backup =
                 is_array(
@@ -355,10 +298,9 @@ HTML;
                 is_string($last)
                 && $last !== '';
 
-            $lastLabel =
-                self::formatDateTime(
-                    $last
-                );
+            $lastLabel = is_string($last) && $last !== ''
+                ? self::formatDateTime($last)
+                : '—';
 
             $size =
                 $bytes !== null
@@ -367,7 +309,7 @@ HTML;
                     / 1048576,
                     2
                 ) . ' MB'
-                : 'ไม่ทราบ';
+                : '—';
 
             $statusText = $rawState === 'STALE'
                 ? 'Stale'
@@ -498,6 +440,18 @@ HTML;
 
         <strong class="info-value">
             {$lastLabel}
+        </strong>
+
+    </div>
+
+    <div class="info-item">
+
+        <span class="info-label">
+            Backup size
+        </span>
+
+        <strong class="info-value">
+            {$size}
         </strong>
 
     </div>

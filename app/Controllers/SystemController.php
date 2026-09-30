@@ -98,6 +98,19 @@ HTML;
             is_numeric($studentValue) ? (int) $studentValue : null
         );
 
+        $rootLabel = is_numeric($rootValue) ? $root . '%' : '—';
+        $studentLabel = is_numeric($studentValue) ? $student . '%' : '—';
+        $rootProgressHtml = is_numeric($rootValue)
+            ? '<div class="progress-track"><div class="progress-fill '
+                . $rootThreshold['fill_class']
+                . '" style="width: ' . $root . '%"></div></div>'
+            : '<div class="storage-unavailable">Unavailable</div>';
+        $studentProgressHtml = is_numeric($studentValue)
+            ? '<div class="progress-track"><div class="progress-fill '
+                . $studentThreshold['fill_class']
+                . '" style="width: ' . $student . '%"></div></div>'
+            : '<div class="storage-unavailable">Unavailable</div>';
+
         $generated =
             self::formatDateTime(
                 $status['generated_at']
@@ -146,15 +159,10 @@ HTML;
 
     <div class="disk-heading">
         <span>Root Disk</span>
-        <span>{$root}%</span>
+        <span>{$rootLabel}</span>
     </div>
 
-    <div class="progress-track">
-        <div
-            class="progress-fill {$rootThreshold['fill_class']}"
-            style="width: {$root}%"
-        ></div>
-    </div>
+    {$rootProgressHtml}
 
     <span class="storage-threshold" data-storage-threshold="{$rootThreshold['key']}">
         {$rootThreshold['label']}
@@ -167,15 +175,10 @@ HTML;
 
     <div class="disk-heading">
         <span>Student Disk</span>
-        <span>{$student}%</span>
+        <span>{$studentLabel}</span>
     </div>
 
-    <div class="progress-track">
-        <div
-            class="progress-fill {$studentThreshold['fill_class']}"
-            style="width: {$student}%"
-        ></div>
-    </div>
+    {$studentProgressHtml}
 
     <span class="storage-threshold" data-storage-threshold="{$studentThreshold['key']}">
         {$studentThreshold['label']}
@@ -300,59 +303,8 @@ HTML;
                 $host['status']
                 ?? null;
 
-            if (!is_array($status)) {
-                $unavailableLabel = $rawState === 'STALE'
-                    ? 'Stale'
-                    : 'Unavailable';
-
-                $hostsHtml .= <<<HTML
-<section class="surface monitoring-host-panel {$stateClass}" data-host-state="{$rawState}">
-
-<div class="section-heading">
-    <div>
-        <h2>{$name}</h2>
-
-        <p>
-            Host: {$code}
-            · {$ip}
-        </p>
-    </div>
-
-    <span class="dashboard-host-status" aria-label="Status: {$displayState}">
-        <span class="dashboard-host-status-icon" aria-hidden="true">{$stateIcon}</span>
-        <span>{$displayState}</span>
-    </span>
-</div>
-
-<div class="surface recent-panel">
-
-    <div class="info-item">
-        <span class="info-label">
-            Current Monitoring Data
-        </span>
-
-        <strong class="info-value">
-            {$unavailableLabel}
-        </strong>
-    </div>
-
-    <div class="info-item">
-        <span class="info-label">
-            Host State
-        </span>
-
-        <strong class="info-value">
-            {$displayState}
-        </strong>
-    </div>
-
-</div>
-
-</section>
-HTML;
-
-                continue;
-            }
+            $statusAvailable = is_array($status);
+            $status = $statusAvailable ? $status : [];
 
             $services =
                 is_array(
@@ -372,6 +324,15 @@ HTML;
 
             $serviceHtml = '';
             $isStale = $rawState === 'STALE';
+            if ($isStale) {
+                $storage = [];
+            }
+            $isUnavailable = !$statusAvailable
+                || in_array(
+                    $rawState,
+                    ['UNAVAILABLE', 'UNREACHABLE'],
+                    true
+                );
 
             foreach (
                 $labels as $key => $label
@@ -381,9 +342,9 @@ HTML;
                     ?? false
                 );
 
-                $state = $isStale
-                    ? 'Stale'
-                    : ($running ? 'Running' : 'Unavailable');
+                $state = $isUnavailable
+                    ? 'Unavailable'
+                    : ($isStale ? 'Stale' : ($running ? 'Running' : 'Unavailable'));
 
                 $indicatorClass = $running && !$isStale
                     ? 'service-indicator-up'
@@ -432,12 +393,29 @@ HTML;
                 )
             );
 
-            $rootThreshold = self::storageThreshold(
+                $rootThreshold = self::storageThreshold(
                 is_numeric($rootValue) ? (int) $rootValue : null
             );
             $studentThreshold = self::storageThreshold(
                 is_numeric($studentValue) ? (int) $studentValue : null
             );
+
+            $rootLabel = is_numeric($rootValue)
+                ? $root . '%'
+                : '—';
+            $studentLabel = is_numeric($studentValue)
+                ? $student . '%'
+                : '—';
+            $rootProgressHtml = is_numeric($rootValue)
+                ? '<div class="progress-track"><div class="progress-fill '
+                    . $rootThreshold['fill_class']
+                    . '" style="width: ' . $root . '%"></div></div>'
+                : '<div class="storage-unavailable">Unavailable</div>';
+            $studentProgressHtml = is_numeric($studentValue)
+                ? '<div class="progress-track"><div class="progress-fill '
+                    . $studentThreshold['fill_class']
+                    . '" style="width: ' . $student . '%"></div></div>'
+                : '<div class="storage-unavailable">Unavailable</div>';
 
             $generated =
                 self::formatDateTime(
@@ -486,15 +464,10 @@ HTML;
 
             <div class="disk-heading">
                 <span>Root Disk</span>
-                <span>{$root}%</span>
+                <span>{$rootLabel}</span>
             </div>
 
-            <div class="progress-track">
-            <div
-                class="progress-fill {$rootThreshold['fill_class']}"
-                    style="width: {$root}%"
-                ></div>
-            </div>
+            {$rootProgressHtml}
 
         <span class="storage-threshold" data-storage-threshold="{$rootThreshold['key']}">
             {$rootThreshold['label']}
@@ -506,15 +479,10 @@ HTML;
 
             <div class="disk-heading">
                 <span>Student Disk</span>
-                <span>{$student}%</span>
+                <span>{$studentLabel}</span>
             </div>
 
-            <div class="progress-track">
-            <div
-                class="progress-fill {$studentThreshold['fill_class']}"
-                    style="width: {$student}%"
-                ></div>
-            </div>
+            {$studentProgressHtml}
 
         <span class="storage-threshold" data-storage-threshold="{$studentThreshold['key']}">
             {$studentThreshold['label']}

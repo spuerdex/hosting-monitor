@@ -23,3 +23,17 @@ Implemented host-scannable System and Backup presentation using the existing nor
 
 - Full-suite environment failure: AuthRepositoryTest.php and SessionRepositoryTest.php report a missing `sysadmin` fixture.
 - Full-suite environment failure: MultiHostAcceptanceReviewTest.php cannot prepare its symlink fixture because this Windows environment denies symlink creation.
+
+## Fix Round 1
+
+- Kept System stale/unavailable host panels structurally complete with service and Root/Student storage sections.
+- Added explicit `Unavailable`, `Stale`, and `—` placeholders for non-live or missing storage data; percentages and progress bars render only for numeric storage values.
+- Kept Backup stale/unavailable host panels complete with per-host last backup timestamp and Backup size fields.
+- Added focused stale, unavailable, and missing-storage assertions to SystemControllerTest.php, BackupControllerTest.php, and MultiHostSystemBackupTest.php.
+
+### Fix Verification
+
+- PHP lint for SystemController.php and BackupController.php — passed.
+- `git diff --check` — passed.
+- `C:\wamp64\bin\php\php8.3.14\php.exe tests/run.php` — all Task 5-focused tests passed.
+- Existing environment-only failures remain unchanged: missing `sysadmin` fixture and denied Windows symlink creation.
