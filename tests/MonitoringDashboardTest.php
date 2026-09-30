@@ -79,14 +79,16 @@ assertTrueValue(str_contains($monitoringHtml, 'STALE'));
 assertTrueValue(str_contains($monitoringHtml, 'data-metric="total-hosts">4<'));
 assertTrueValue(str_contains($monitoringHtml, 'data-metric="healthy-hosts">1<'));
 assertTrueValue(str_contains($monitoringHtml, 'data-metric="warning-unavailable-hosts">3<'));
-assertTrueValue(str_contains($monitoringHtml, 'data-metric="total-students">16<'));
+assertTrueValue(str_contains($monitoringHtml, 'data-metric="total-students">5<'));
 assertTrueValue(str_contains($monitoringHtml, 'Storage'));
 assertTrueValue(str_contains($monitoringHtml, 'Last successful collection'));
 assertTrueValue(str_contains($monitoringHtml, 'Last backup'));
 assertTrueValue(str_contains($monitoringHtml, 'data-host-health-matrix'));
 
-// Overview must aggregate valid account_count values from stale and unavailable hosts.
-assertTrueValue(str_contains($monitoringHtml, '7 accounts'));
+// Overview must aggregate account_count values only from current hosts.
+assertTrueValue(str_contains($monitoringHtml, '2 accounts'));
+assertTrueValue(str_contains($monitoringHtml, '3 accounts'));
+assertTrueValue(str_contains($monitoringHtml, 'Unknown (not current)'));
 assertTrueValue(str_contains($monitoringHtml, 'Monitored student accounts'));
 
 // Untrusted host names must be HTML-escaped.

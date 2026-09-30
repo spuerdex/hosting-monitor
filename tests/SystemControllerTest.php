@@ -94,3 +94,29 @@ assertTrueValue(str_contains($staleNullHtml, 'data-host-state="STALE"'));
 assertTrueValue(str_contains($staleNullHtml, 'aria-label="Nginx: Stale"'));
 assertTrueValue(str_contains($staleNullHtml, 'data-service-state="Stale"'));
 assertTrueValue(!str_contains($staleNullHtml, 'aria-label="Nginx: Unavailable"'));
+
+$unsafeStateHtml = (new SystemController())->monitoringPage(
+    ['display_name' => 'admin'],
+    [
+        'cs' => [
+            'code' => 'cs',
+            'name' => 'Computer Science',
+            'ip' => '192.0.2.11',
+            'display_state' => 'STALE" onmouseover="alert(1)',
+            'status' => null,
+        ],
+    ]
+);
+
+assertTrueValue(
+    str_contains(
+        $unsafeStateHtml,
+        'data-host-state="STALE&quot; ONMOUSEOVER=&quot;ALERT(1)"'
+    )
+);
+assertTrueValue(
+    !str_contains(
+        $unsafeStateHtml,
+        'data-host-state="STALE" onmouseover="alert(1)"'
+    )
+);

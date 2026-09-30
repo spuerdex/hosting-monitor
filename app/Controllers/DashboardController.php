@@ -361,7 +361,13 @@ HTML;
                 $warningHosts++;
             }
 
-            $isCurrent = is_int($host['account_count'] ?? null)
+            $isCurrent = is_array($host['status'] ?? null)
+                && in_array(
+                    $host['display_state'] ?? null,
+                    ['HEALTHY', 'WARNING'],
+                    true
+                )
+                && is_int($host['account_count'] ?? null)
                 && $host['account_count'] >= 0;
 
             if ($isCurrent) {

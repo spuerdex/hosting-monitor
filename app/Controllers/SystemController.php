@@ -296,6 +296,7 @@ HTML;
             $rawState = strtoupper((string) (
                 $host['display_state'] ?? 'UNAVAILABLE'
             ));
+            $safeState = self::escapeHtml($rawState);
             $stateClass = self::hostStateClass($rawState);
             $stateIcon = self::hostStateIcon($rawState);
 
@@ -424,7 +425,7 @@ HTML;
                 );
 
             $hostsHtml .= <<<HTML
-<section class="monitoring-host-panel {$stateClass}" data-host-state="{$rawState}">
+<section class="monitoring-host-panel {$stateClass}" data-host-state="{$safeState}">
 
 <div class="section-heading">
 

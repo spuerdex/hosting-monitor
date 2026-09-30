@@ -68,3 +68,29 @@ assertTrueValue(str_contains($staleHtml, 'Stale'));
 assertTrueValue(str_contains($staleHtml, 'Last backup timestamp'));
 assertTrueValue(str_contains($staleHtml, 'Backup size'));
 assertTrueValue(str_contains($staleHtml, '—'));
+
+$unsafeStateHtml = (new BackupController())->monitoringPage(
+    ['display_name' => 'admin'],
+    [
+        'cs' => [
+            'code' => 'cs',
+            'name' => 'Computer Science',
+            'ip' => '192.0.2.11',
+            'display_state' => 'STALE" onmouseover="alert(1)',
+            'status' => null,
+        ],
+    ]
+);
+
+assertTrueValue(
+    str_contains(
+        $unsafeStateHtml,
+        'data-host-state="STALE&quot; ONMOUSEOVER=&quot;ALERT(1)"'
+    )
+);
+assertTrueValue(
+    !str_contains(
+        $unsafeStateHtml,
+        'data-host-state="STALE" onmouseover="alert(1)"'
+    )
+);
