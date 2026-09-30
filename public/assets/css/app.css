@@ -365,6 +365,32 @@ a {
     font-size: 10px;
 }
 
+.status-refresh {
+    width: 28px;
+    height: 28px;
+
+    margin-left: auto;
+
+    border: 1px solid
+        rgba(255,255,255,.12);
+
+    border-radius: 8px;
+
+    background: transparent;
+
+    color: #C6C6C6;
+
+    cursor: pointer;
+
+    font-size: 15px;
+    line-height: 1;
+}
+
+.status-refresh:hover {
+    background: rgba(255,255,255,.08);
+    color: #fff;
+}
+
 .sidebar-faculty {
     margin-top: 13px;
 

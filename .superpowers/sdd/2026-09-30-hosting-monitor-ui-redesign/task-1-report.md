@@ -48,4 +48,31 @@ After implementation:
 
 - `AuthRepositoryTest.php` and `SessionRepositoryTest.php` fail because the expected `sysadmin` fixture/record is absent in the current environment.
 - `MultiHostAcceptanceReviewTest.php` fails because Windows denies the test's temporary symlink creation (`Permission denied`).
+
+## Round 1 reviewer fixes
+
+### Findings addressed
+
+- Added real rendered `[data-status-feedback]` and `[data-refresh-status]` hooks to `app/Views/Layout.php`.
+- Added visible `Online · Read-only Monitoring Portal` status text so the green indicator is not the only status signal.
+- Added an accessible refresh button name and `aria-live="polite"` status region to the rendered shell.
+- Extended `LayoutTest.php` and `FrontendAccessibilityTest.php` to assert the rendered hooks, status text, live region, and accessibility name.
+- Made refresh feedback timer-safe by cancelling the previous restoration timer and always restoring the original status copy after rapid repeated clicks.
+- Kept the existing token aliases unchanged; no broad design-token refactor was needed for this focused fix.
+
+### Round 1 verification
+
+Command:
+
+```text
+C:\wamp64\bin\php\php8.3.14\php.exe tests/run.php
+```
+
+Covering UI tests passed:
+
+- `FrontendAccessibilityTest.php`
+- `LayoutTest.php`
+- `UiV2Test.php`
+
+The full suite continued to show the same three environment failures: missing `sysadmin` fixture/record in `AuthRepositoryTest.php` and `SessionRepositoryTest.php`, plus Windows symlink permission denial in `MultiHostAcceptanceReviewTest.php`.
 - The full suite therefore exits with code `1` despite the Task 1 UI tests passing.

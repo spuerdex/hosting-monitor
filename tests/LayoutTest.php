@@ -44,6 +44,26 @@ assertTrueValue(
 );
 
 assertTrueValue(
+    str_contains($html, 'data-refresh-status')
+);
+
+assertTrueValue(
+    str_contains($html, 'data-status-feedback')
+);
+
+assertTrueValue(
+    str_contains($html, 'aria-live="polite"')
+);
+
+assertTrueValue(
+    str_contains($html, 'Online · Read-only Monitoring')
+);
+
+assertTrueValue(
+    str_contains($html, 'aria-label="ตรวจสอบสถานะล่าสุด"')
+);
+
+assertTrueValue(
     str_contains($html, 'sidebar-status')
 );
 

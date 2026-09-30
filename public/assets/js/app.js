@@ -165,6 +165,11 @@ document.addEventListener('DOMContentLoaded', () => {
         'polite'
     );
 
+    const defaultStatusText =
+        statusFeedback?.textContent ?? '';
+
+    let statusFeedbackTimer = null;
+
     document
         .querySelectorAll('[data-refresh-status]')
         .forEach(button => {
@@ -175,16 +180,21 @@ document.addEventListener('DOMContentLoaded', () => {
                         return;
                     }
 
-                    const originalText =
-                        statusFeedback.textContent;
+                    if (statusFeedbackTimer !== null) {
+                        window.clearTimeout(
+                            statusFeedbackTimer
+                        );
+                    }
 
                     statusFeedback.textContent =
                         'ตรวจสอบสถานะล่าสุดแล้ว';
 
-                    window.setTimeout(
+                    statusFeedbackTimer = window.setTimeout(
                         () => {
                             statusFeedback.textContent =
-                                originalText;
+                                defaultStatusText;
+
+                            statusFeedbackTimer = null;
                         },
                         1600
                     );

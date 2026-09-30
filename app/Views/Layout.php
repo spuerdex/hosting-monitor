@@ -153,13 +153,29 @@ HTML;
 
     <div class="sidebar-footer">
 
-        <div class="sidebar-status">
-            <span class="status-dot"></span>
+        <div
+            class="sidebar-status"
+            data-status-feedback
+            aria-live="polite"
+        >
+            <span
+                class="status-dot"
+                aria-hidden="true"
+            ></span>
 
             <div>
                 <strong>Student Hosting</strong>
-                <small>Monitoring Portal</small>
+                <small>Online · Read-only Monitoring Portal</small>
             </div>
+
+            <button
+                type="button"
+                class="status-refresh"
+                data-refresh-status
+                aria-label="ตรวจสอบสถานะล่าสุด"
+            >
+                ↻
+            </button>
         </div>
 
         <div class="sidebar-faculty">

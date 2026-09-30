@@ -2,6 +2,15 @@
 
 declare(strict_types=1);
 
+use Digit\HostingAdmin\Views\Layout;
+
+$html = Layout::render(
+    title: 'Accessibility Test',
+    active: 'dashboard',
+    content: '<p>Test</p>',
+    user: ['display_name' => 'admin']
+);
+
 $cssFile = dirname(__DIR__)
     . '/public/assets/css/app.css';
 
@@ -61,4 +70,20 @@ assertTrueValue(
 
 assertTrueValue(
     str_contains($js, 'aria-live')
+);
+
+assertTrueValue(
+    str_contains($html, 'Online · Read-only Monitoring')
+);
+
+assertTrueValue(
+    str_contains($html, 'data-status-feedback')
+);
+
+assertTrueValue(
+    str_contains($html, 'aria-live="polite"')
+);
+
+assertTrueValue(
+    str_contains($html, 'aria-label="ตรวจสอบสถานะล่าสุด"')
 );
