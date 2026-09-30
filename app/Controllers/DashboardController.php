@@ -419,7 +419,7 @@ HTML;
     <article class="surface dashboard-summary-card">
         <span class="metric-label">Total Students</span>
         <strong class="dashboard-summary-value" data-metric="total-students">{$totalStudents}</strong>
-        <span class="metric-sub">Current accounts only</span>
+        <span class="metric-sub">Monitored student accounts</span>
     </article>
 </div>
 
