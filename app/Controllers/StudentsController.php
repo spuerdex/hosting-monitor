@@ -186,7 +186,7 @@ HTML;
             $rows = <<<HTML
 <tr>
 <td
-    colspan="9"
+    colspan="11"
     class="empty"
     data-students-empty
 >
@@ -530,7 +530,7 @@ HTML;
         if ($rows === '') {
             $rows = <<<HTML
 <tr>
-<td colspan="10" class="empty" data-students-empty>
+<td colspan="12" class="empty" data-students-empty>
 ยังไม่มีข้อมูล Account ที่พร้อมใช้งาน
 </td>
 </tr>

@@ -72,6 +72,7 @@ $emptyHtml = $controller->monitoringPage(
 );
 
 assertTrueValue(str_contains($emptyHtml, 'data-students-empty'));
+assertTrueValue(str_contains($emptyHtml, 'colspan="12"'));
 
 // Filtering by CS must exclude IT accounts.
 $csHtml = $controller->monitoringPage(

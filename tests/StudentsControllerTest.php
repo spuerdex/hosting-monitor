@@ -109,3 +109,4 @@ $emptyHtml = $controller->page(
 );
 
 assertTrueValue(str_contains($emptyHtml, 'data-students-empty'));
+assertTrueValue(str_contains($emptyHtml, 'colspan="11"'));
