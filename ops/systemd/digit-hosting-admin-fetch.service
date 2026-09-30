@@ -9,6 +9,7 @@ User=hostingfetch
 Group=hostingfetch
 
 ExecStart=/usr/local/sbin/digit-hosting-admin-fetch
+TimeoutStartSec=30s
 
 WorkingDirectory=/tmp
 UMask=0027
