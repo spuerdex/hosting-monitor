@@ -1,6 +1,7 @@
 """Local-only mock API server for multiple host fixtures."""
 
 import json
+import argparse
 import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.request import urlopen
@@ -52,7 +53,12 @@ class MockStatusServer:
             def do_GET(self):
                 prefix, separator, rest = self.path.strip("/").partition("/")
 
-                if separator != "/" or rest != "api/status":
+                valid_path = rest == "api/status"
+
+                if not valid_path and len(fixtures) == 1:
+                    valid_path = self.path.strip("/") == "api/status"
+
+                if not valid_path:
                     self.send_error(404)
                     return
 
@@ -75,3 +81,35 @@ class MockStatusServer:
                 return
 
         return Handler
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(
+        description="Local multi-host status API mock"
+    )
+    parser.add_argument("--code", required=True)
+    parser.add_argument("--fixture", required=True)
+    parser.add_argument("--host", default="127.0.0.1")
+    parser.add_argument("--port", type=int, required=True)
+    args = parser.parse_args(argv)
+
+    with open(args.fixture, encoding="utf-8") as stream:
+        fixture = json.load(stream)
+
+    server = MockStatusServer(
+        {args.code: fixture},
+        host=args.host,
+        port=args.port,
+    )
+    server.start()
+
+    try:
+        threading.Event().wait()
+    except KeyboardInterrupt:
+        pass
+    finally:
+        server.stop()
+
+
+if __name__ == "__main__":
+    main()
