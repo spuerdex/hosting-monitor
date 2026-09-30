@@ -103,6 +103,11 @@ document.addEventListener('DOMContentLoaded', () => {
             'student-status-filter'
         );
 
+    const studentNoMatch =
+        document.querySelector(
+            '[data-student-no-match]'
+        );
+
     const filterStudents = () => {
         const query =
             studentSearch
@@ -117,39 +122,51 @@ document.addEventListener('DOMContentLoaded', () => {
                 .toLowerCase()
             ?? 'all';
 
-        document
-            .querySelectorAll(
-                '[data-student-row]'
-            )
-            .forEach(row => {
-                const rowText =
-                    row.textContent
-                        .toLowerCase();
+        const rows = document.querySelectorAll(
+            '[data-student-row]'
+        );
 
-                const rowStatus =
-                    (
-                        row.getAttribute(
-                            'data-status'
-                        )
-                        ?? ''
-                    ).toLowerCase();
+        let visibleRows = 0;
 
-                const matchesQuery =
-                    query === ''
-                    || rowText.includes(
-                        query
-                    );
+        rows.forEach(row => {
+            const rowText =
+                row.textContent
+                    .toLowerCase();
 
-                const matchesStatus =
-                    status === 'all'
-                    || rowStatus === status;
+            const rowStatus =
+                (
+                    row.getAttribute(
+                        'data-status'
+                    )
+                    ?? ''
+                ).toLowerCase();
 
-                row.hidden =
-                    !(
-                        matchesQuery
-                        && matchesStatus
-                    );
-            });
+            const matchesQuery =
+                query === ''
+                || rowText.includes(
+                    query
+                );
+
+            const matchesStatus =
+                status === 'all'
+                || rowStatus === status;
+
+            row.hidden =
+                !(
+                    matchesQuery
+                    && matchesStatus
+                );
+
+            if (!row.hidden) {
+                visibleRows++;
+            }
+        });
+
+        if (studentNoMatch) {
+            studentNoMatch.hidden =
+                rows.length === 0
+                || visibleRows > 0;
+        }
     };
 
     studentSearch?.addEventListener(
