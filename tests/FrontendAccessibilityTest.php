@@ -21,15 +21,14 @@ $css = file_get_contents($cssFile);
 $js = file_get_contents($jsFile);
 
 foreach ([
-    '--canvas',
-    '--rail',
+    '--background',
+    '--sidebar',
     '--surface',
-    '--surface-raised',
     '--border',
     '--text',
-    '--status-success',
-    '--status-warning',
-    '--status-danger',
+    '--success',
+    '--warning',
+    '--danger',
     '--space-1',
     '--radius-sm',
     '--shadow-sm',
@@ -73,11 +72,27 @@ assertTrueValue(
 );
 
 assertTrueValue(
+    str_contains($js, 'data-status-copy')
+);
+
+assertTrueValue(
+    str_contains($js, 'statusCopy.textContent')
+);
+
+assertTrueValue(
+    !str_contains($js, 'statusFeedback.textContent =')
+);
+
+assertTrueValue(
     str_contains($html, 'Online · Read-only Monitoring')
 );
 
 assertTrueValue(
     str_contains($html, 'data-status-feedback')
+);
+
+assertTrueValue(
+    str_contains($html, 'data-status-copy')
 );
 
 assertTrueValue(

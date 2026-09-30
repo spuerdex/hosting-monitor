@@ -52,6 +52,10 @@ assertTrueValue(
 );
 
 assertTrueValue(
+    str_contains($html, 'data-status-copy')
+);
+
+assertTrueValue(
     str_contains($html, 'aria-live="polite"')
 );
 

@@ -165,8 +165,11 @@ document.addEventListener('DOMContentLoaded', () => {
         'polite'
     );
 
+    const statusCopy =
+        statusFeedback?.querySelector('[data-status-copy]');
+
     const defaultStatusText =
-        statusFeedback?.textContent ?? '';
+        statusCopy?.textContent ?? '';
 
     let statusFeedbackTimer = null;
 
@@ -176,7 +179,7 @@ document.addEventListener('DOMContentLoaded', () => {
             button.addEventListener(
                 'click',
                 () => {
-                    if (!statusFeedback) {
+                    if (!statusFeedback || !statusCopy) {
                         return;
                     }
 
@@ -186,12 +189,12 @@ document.addEventListener('DOMContentLoaded', () => {
                         );
                     }
 
-                    statusFeedback.textContent =
+                    statusCopy.textContent =
                         'ตรวจสอบสถานะล่าสุดแล้ว';
 
                     statusFeedbackTimer = window.setTimeout(
                         () => {
-                            statusFeedback.textContent =
+                            statusCopy.textContent =
                                 defaultStatusText;
 
                             statusFeedbackTimer = null;

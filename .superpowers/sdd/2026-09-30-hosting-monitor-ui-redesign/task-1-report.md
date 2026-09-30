@@ -75,4 +75,28 @@ Covering UI tests passed:
 - `UiV2Test.php`
 
 The full suite continued to show the same three environment failures: missing `sysadmin` fixture/record in `AuthRepositoryTest.php` and `SessionRepositoryTest.php`, plus Windows symlink permission denial in `MultiHostAcceptanceReviewTest.php`.
+
+## Round 2 reviewer fixes and verification
+
+### Findings addressed
+
+- Added a dedicated `[data-status-copy]` child inside the live status region. Refresh feedback now updates only that child, preserving the `.sidebar-status` wrapper, status dot, refresh button, and `data-status-feedback` hook.
+- Added regression assertions for the rendered child seam and for JavaScript using `statusCopy.textContent` without assigning to the wrapper's `textContent`.
+- Removed unused duplicate token aliases (`--canvas`, `--rail`, `--surface-raised`, `--border-subtle`, `--text-strong`, `--text-muted`, duplicate semantic status aliases, `--status-info`, `--radius-lg`, and `--shadow-md`). Existing canonical styling variables remain unchanged.
+
+### Round 2 verification
+
+Command:
+
+```text
+C:\wamp64\bin\php\php8.3.14\php.exe tests/run.php
+```
+
+Covering UI tests passed:
+
+- `FrontendAccessibilityTest.php`
+- `LayoutTest.php`
+- `UiV2Test.php`
+
+The full suite continued to show the same three environment failures: missing `sysadmin` fixture/record in `AuthRepositoryTest.php` and `SessionRepositoryTest.php`, plus Windows symlink permission denial in `MultiHostAcceptanceReviewTest.php`.
 - The full suite therefore exits with code `1` despite the Task 1 UI tests passing.

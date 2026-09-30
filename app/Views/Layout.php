@@ -165,7 +165,9 @@ HTML;
 
             <div>
                 <strong>Student Hosting</strong>
-                <small>Online · Read-only Monitoring Portal</small>
+                <small data-status-copy>
+                    Online · Read-only Monitoring Portal
+                </small>
             </div>
 
             <button
