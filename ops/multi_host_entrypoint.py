@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable
 
+from ops import api_provider
 from ops import ssh_adapter
 from ops.multi_host_fetcher import fetch_all
 
@@ -16,9 +17,12 @@ def run(
     process_factory,
     now: Callable[[], datetime],
 ) -> dict[str, str]:
-    """Connect the multi-host orchestrator to the SSH adapter."""
+    """Connect the multi-host orchestrator to API or legacy SSH adapters."""
 
     def fetch(host: dict) -> dict:
+        if "base_url" in host:
+            return api_provider.fetch_status(host)
+
         return ssh_adapter.fetch_status(
             host,
             process_factory=process_factory,
