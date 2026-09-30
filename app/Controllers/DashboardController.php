@@ -342,11 +342,14 @@ HTML;
         $totalStudents = 0;
         $healthyHosts = 0;
         $warningHosts = 0;
+        $validHostCount = 0;
 
         foreach ($hosts as $code => $host) {
             if (!is_array($host)) {
                 continue;
             }
+
+            $validHostCount++;
 
             $state = strtoupper((string) (
                 $host['display_state'] ?? 'UNAVAILABLE'
@@ -358,13 +361,7 @@ HTML;
                 $warningHosts++;
             }
 
-            $isCurrent = is_array($host['status'] ?? null)
-                && in_array(
-                    $state,
-                    ['HEALTHY', 'WARNING'],
-                    true
-                )
-                && is_int($host['account_count'] ?? null)
+            $isCurrent = is_int($host['account_count'] ?? null)
                 && $host['account_count'] >= 0;
 
             if ($isCurrent) {
@@ -388,10 +385,7 @@ HTML;
 HTML;
         }
 
-        $totalHosts = count($hosts);
-        $warningLabel = $warningHosts === 0
-            ? 'None'
-            : (string) $warningHosts;
+        $totalHosts = $validHostCount;
 
         $content = <<<HTML
 <div class="page-heading">
@@ -406,25 +400,25 @@ HTML;
 <div class="dashboard-summary" aria-label="Dashboard summary">
     <article class="surface dashboard-summary-card">
         <span class="metric-label">Total Hosts</span>
-        <strong class="dashboard-summary-value">{$totalHosts}</strong>
+        <strong class="dashboard-summary-value" data-metric="total-hosts">{$totalHosts}</strong>
         <span class="metric-sub">Enabled hosting programs</span>
     </article>
 
     <article class="surface dashboard-summary-card dashboard-summary-card-success">
         <span class="metric-label">Healthy Hosts</span>
-        <strong class="dashboard-summary-value">{$healthyHosts}</strong>
+        <strong class="dashboard-summary-value" data-metric="healthy-hosts">{$healthyHosts}</strong>
         <span class="metric-sub">Reporting normally</span>
     </article>
 
     <article class="surface dashboard-summary-card dashboard-summary-card-warning">
         <span class="metric-label">Warning / Unavailable</span>
-        <strong class="dashboard-summary-value">{$warningLabel}</strong>
+        <strong class="dashboard-summary-value" data-metric="warning-unavailable-hosts">{$warningHosts}</strong>
         <span class="metric-sub">Needs attention</span>
     </article>
 
     <article class="surface dashboard-summary-card">
         <span class="metric-label">Total Students</span>
-        <strong class="dashboard-summary-value">{$totalStudents}</strong>
+        <strong class="dashboard-summary-value" data-metric="total-students">{$totalStudents}</strong>
         <span class="metric-sub">Current accounts only</span>
     </article>
 </div>

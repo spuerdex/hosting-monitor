@@ -60,7 +60,7 @@ $monitoringHosts = [
         'fetch_state' => 'SUCCESS',
         'display_state' => 'STALE',
         'last_success' => '2026-09-20T09:00:00+07:00',
-        'account_count' => null,
+        'account_count' => 4,
         'status' => null,
     ],
 ];
@@ -76,20 +76,17 @@ assertTrueValue(str_contains($monitoringHtml, 'UNREACHABLE'));
 assertTrueValue(str_contains($monitoringHtml, 'Electrical Engineering'));
 assertTrueValue(str_contains($monitoringHtml, 'WARNING'));
 assertTrueValue(str_contains($monitoringHtml, 'STALE'));
-assertTrueValue(str_contains($monitoringHtml, 'Total Hosts'));
-assertTrueValue(str_contains($monitoringHtml, '4'));
-assertTrueValue(str_contains($monitoringHtml, 'Healthy Hosts'));
-assertTrueValue(str_contains($monitoringHtml, 'Warning / Unavailable'));
-assertTrueValue(str_contains($monitoringHtml, 'Total Students'));
-assertTrueValue(str_contains($monitoringHtml, '5'));
+assertTrueValue(str_contains($monitoringHtml, 'data-metric="total-hosts">4<'));
+assertTrueValue(str_contains($monitoringHtml, 'data-metric="healthy-hosts">1<'));
+assertTrueValue(str_contains($monitoringHtml, 'data-metric="warning-unavailable-hosts">3<'));
+assertTrueValue(str_contains($monitoringHtml, 'data-metric="total-students">9<'));
 assertTrueValue(str_contains($monitoringHtml, 'Storage'));
 assertTrueValue(str_contains($monitoringHtml, 'Last successful collection'));
 assertTrueValue(str_contains($monitoringHtml, 'Last backup'));
 assertTrueValue(str_contains($monitoringHtml, 'data-host-health-matrix'));
 
 // Overview must aggregate only current account_count values.
-assertTrueValue(str_contains($monitoringHtml, 'Total Students'));
-assertTrueValue(str_contains($monitoringHtml, '>5<'));
+assertTrueValue(str_contains($monitoringHtml, 'data-metric="total-students">9<'));
 assertTrueValue(str_contains($monitoringHtml, 'Unknown (not current)'));
 
 // Untrusted host names must be HTML-escaped.
@@ -115,8 +112,18 @@ $emptyHtml = (new DashboardController())->overview(
 );
 
 assertTrueValue(str_contains($emptyHtml, 'No enabled hosts available.'));
-assertTrueValue(str_contains($emptyHtml, 'Total Hosts'));
-assertTrueValue(str_contains($emptyHtml, '>0<'));
+assertTrueValue(str_contains($emptyHtml, 'data-metric="total-hosts">0<'));
+assertTrueValue(str_contains($emptyHtml, 'data-metric="warning-unavailable-hosts">0<'));
+
+$malformedHtml = (new DashboardController())->overview(
+    ['display_name' => 'admin'],
+    [
+        'valid' => $monitoringHosts['cs'],
+        'malformed' => 'not-a-host-record',
+    ]
+);
+
+assertTrueValue(str_contains($malformedHtml, 'data-metric="total-hosts">1<'));
 
 // RED: A selected host must have a read-only detail page.
 $hostDetailHtml = (new DashboardController())->hostDetail(
