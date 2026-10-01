@@ -39,12 +39,16 @@ final class BackupController
                 / 1048576,
                 2
             ) . ' MB'
-            : 'ไม่ทราบ';
+            : '—';
 
         $statusText =
             $available
             ? 'Available'
             : 'Unavailable';
+
+        $backupStatusKey = $available
+            ? 'available'
+            : 'unavailable';
 
         $content = <<<HTML
 <div class="page-heading">
@@ -63,7 +67,7 @@ final class BackupController
 </div>
 
 
-<section class="surface backup-hero">
+<section class="surface backup-hero" data-backup-status="{$backupStatusKey}">
 
 <div>
 
@@ -89,7 +93,7 @@ final class BackupController
         {$size}
     </strong>
 
-    <span>
+    <span class="backup-size-label">
         Latest backup size
     </span>
 
@@ -155,12 +159,12 @@ final class BackupController
 
 <div class="section">
 
-<div class="surface recent-panel">
+<div class="surface recent-panel" data-backup-status="{$backupStatusKey}">
 
     <div class="info-item">
 
         <span class="info-label">
-            Last Backup
+            Last backup timestamp
         </span>
 
         <strong class="info-value">
@@ -247,6 +251,16 @@ HTML;
                 ?? 'UNAVAILABLE'
             );
 
+            $rawState = strtoupper((string) (
+                $host['display_state'] ?? 'UNAVAILABLE'
+            ));
+            $safeState = self::escapeHtml($rawState);
+            $stateClass = self::hostStateClass($rawState);
+            $stateIcon = self::hostStateIcon($rawState);
+            $backupStatusKey = $rawState === 'STALE'
+                ? 'stale'
+                : 'unavailable';
+
             $status =
                 $host['status']
                 ?? null;
@@ -262,60 +276,8 @@ HTML;
             |
             */
 
-            if (!is_array($status)) {
-                $hostsHtml .= <<<HTML
-<section class="surface monitoring-host-panel backup-host-panel">
-
-<div class="section-heading">
-
-    <div>
-        <h2>{$name}</h2>
-
-        <p>
-            Host: {$code}
-            · {$ip}
-        </p>
-    </div>
-
-    <span class="status-pill">
-        {$displayState}
-    </span>
-
-</div>
-
-<div class="surface recent-panel">
-
-    <div class="info-item">
-
-        <span class="info-label">
-            Current Backup Data
-        </span>
-
-        <strong class="info-value">
-            Unavailable
-        </strong>
-
-    </div>
-
-    <div class="info-item">
-
-        <span class="info-label">
-            Host State
-        </span>
-
-        <strong class="info-value">
-            {$displayState}
-        </strong>
-
-    </div>
-
-</div>
-
-</section>
-HTML;
-
-                continue;
-            }
+            $statusAvailable = is_array($status);
+            $status = $statusAvailable ? $status : [];
 
             $backup =
                 is_array(
@@ -337,10 +299,9 @@ HTML;
                 is_string($last)
                 && $last !== '';
 
-            $lastLabel =
-                self::formatDateTime(
-                    $last
-                );
+            $lastLabel = is_string($last) && $last !== ''
+                ? self::formatDateTime($last)
+                : '—';
 
             $size =
                 $bytes !== null
@@ -349,15 +310,15 @@ HTML;
                     / 1048576,
                     2
                 ) . ' MB'
-                : 'ไม่ทราบ';
+                : '—';
 
-            $statusText =
-                $available
-                ? 'Available'
-                : 'Unavailable';
+            $statusText = $rawState === 'STALE'
+                ? 'Stale'
+                : ($available ? 'Available' : 'Unavailable');
+            $backupStatusKey = strtolower($statusText);
 
             $hostsHtml .= <<<HTML
-<section class="monitoring-host-panel backup-host-panel">
+<section class="monitoring-host-panel backup-host-panel {$stateClass}" data-host-state="{$safeState}">
 
 <div class="section-heading">
 
@@ -370,14 +331,15 @@ HTML;
         </p>
     </div>
 
-    <span class="status-pill">
-        {$displayState}
+    <span class="dashboard-host-status" aria-label="Status: {$displayState}">
+        <span class="dashboard-host-status-icon" aria-hidden="true">{$stateIcon}</span>
+        <span>{$displayState}</span>
     </span>
 
 </div>
 
 
-<section class="surface backup-hero">
+<section class="surface backup-hero" data-backup-status="{$backupStatusKey}">
 
 <div>
 
@@ -403,7 +365,7 @@ HTML;
         {$size}
     </strong>
 
-    <span>
+        <span class="backup-size-label">
         Latest backup size
     </span>
 
@@ -474,11 +436,23 @@ HTML;
     <div class="info-item">
 
         <span class="info-label">
-            Last Backup
+            Last backup timestamp
         </span>
 
         <strong class="info-value">
             {$lastLabel}
+        </strong>
+
+    </div>
+
+    <div class="info-item">
+
+        <span class="info-label">
+            Backup size
+        </span>
+
+        <strong class="info-value">
+            {$size}
         </strong>
 
     </div>
@@ -564,6 +538,25 @@ HTML;
             ENT_QUOTES | ENT_SUBSTITUTE,
             'UTF-8'
         );
+    }
+
+    private static function hostStateClass(string $state): string
+    {
+        return match ($state) {
+            'HEALTHY' => 'dashboard-host-healthy',
+            'WARNING' => 'dashboard-host-warning',
+            'STALE' => 'dashboard-host-stale',
+            default => 'dashboard-host-unavailable',
+        };
+    }
+
+    private static function hostStateIcon(string $state): string
+    {
+        return match ($state) {
+            'HEALTHY' => '✓',
+            'WARNING', 'STALE' => '!',
+            default => '×',
+        };
     }
 
     private static function formatDateTime(

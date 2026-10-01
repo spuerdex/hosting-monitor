@@ -143,7 +143,11 @@ HTML;
         MAIN MENU
     </div>
 
-    <nav class="sidebar-nav">
+    <nav
+        id="primary-navigation"
+        class="sidebar-nav"
+        aria-label="เมนูหลัก"
+    >
         {$dashboard}
         {$students}
         {$system}
@@ -153,13 +157,31 @@ HTML;
 
     <div class="sidebar-footer">
 
-        <div class="sidebar-status">
-            <span class="status-dot"></span>
+        <div
+            class="sidebar-status"
+            data-status-feedback
+            aria-live="polite"
+        >
+            <span
+                class="status-dot"
+                aria-hidden="true"
+            ></span>
 
             <div>
                 <strong>Student Hosting</strong>
-                <small>Monitoring Portal</small>
+                <small data-status-copy>
+                    Online · Read-only Monitoring Portal
+                </small>
             </div>
+
+            <button
+                type="button"
+                class="status-refresh"
+                data-refresh-status
+                aria-label="ตรวจสอบสถานะล่าสุด"
+            >
+                ↻
+            </button>
         </div>
 
         <div class="sidebar-faculty">
@@ -187,6 +209,7 @@ HTML;
             data-sidebar-toggle
             aria-label="เปิดเมนู"
             aria-expanded="false"
+            aria-controls="primary-navigation"
         >
             <span></span>
             <span></span>
@@ -204,6 +227,37 @@ HTML;
         </div>
 
     </div>
+
+    <section
+        class="monitoring-context"
+        data-monitoring-context
+        aria-label="บริบทการตรวจสอบ"
+    >
+        <span class="monitoring-context-label">
+            Monitoring context
+        </span>
+
+        <span
+            class="monitoring-context-item"
+            data-host-count
+        >
+            Host inventory · All registered hosts
+        </span>
+
+        <span
+            class="monitoring-context-item"
+            data-monitoring-status
+        >
+            Status · Read-only monitoring
+        </span>
+
+        <span
+            class="monitoring-context-item"
+            data-last-refresh
+        >
+            Last refresh · On page load
+        </span>
+    </section>
 
     <div class="topbar-actions">
 

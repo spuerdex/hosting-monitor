@@ -236,6 +236,34 @@ if (
             'progress-track'
         )
     );
+
+    assertTrueValue(
+        str_contains(
+            $systemHtml,
+            'dashboard-host-warning'
+        )
+    );
+
+    assertTrueValue(
+        str_contains(
+            $systemHtml,
+            'dashboard-host-unavailable'
+        )
+    );
+
+    assertTrueValue(
+        str_contains(
+            $systemHtml,
+            'aria-label="Nginx: Unavailable"'
+        )
+    );
+
+    assertTrueValue(
+        str_contains(
+            $systemHtml,
+            'data-storage-threshold="warning"'
+        )
+    );
 }
 
 
@@ -326,6 +354,27 @@ if (
         || str_contains(
             $backupHtml,
             'backup-policy-grid'
+        )
+    );
+
+    assertTrueValue(
+        str_contains(
+            $backupHtml,
+            'Last backup timestamp'
+        )
+    );
+
+    assertTrueValue(
+        str_contains(
+            $backupHtml,
+            'data-backup-status="unavailable"'
+        )
+    );
+
+    assertTrueValue(
+        !str_contains(
+            $backupHtml,
+            'backup-action'
         )
     );
 }
@@ -466,6 +515,14 @@ if (
             '81%'
         )
     );
+
+    assertTrueValue(str_contains($aiBlock, 'service-status-grid'));
+    assertTrueValue(str_contains($aiBlock, 'storage-grid'));
+    assertTrueValue(str_contains($aiBlock, 'Root Disk'));
+    assertTrueValue(str_contains($aiBlock, 'Student Disk'));
+    assertTrueValue(str_contains($aiBlock, 'Unavailable'));
+    assertTrueValue(str_contains($aiBlock, '—'));
+    assertTrueValue(!str_contains($aiBlock, '0%'));
 }
 
 
@@ -558,6 +615,10 @@ if (
             '8.00 MB'
         )
     );
+
+    assertTrueValue(str_contains($aiBlock, 'Last backup timestamp'));
+    assertTrueValue(str_contains($aiBlock, 'Backup size'));
+    assertTrueValue(str_contains($aiBlock, '—'));
 }
 /*
 |--------------------------------------------------------------------------

@@ -22,7 +22,12 @@ final class AuthController
             );
 
             $errorHtml = <<<HTML
-<div class="auth-error">
+<div
+    class="auth-error"
+    id="login-error"
+    role="alert"
+    aria-live="assertive"
+>
 {$safeError}
 </div>
 HTML;
@@ -59,7 +64,10 @@ HTML;
 
 <div class="auth-shell">
 
-<section class="auth-brand-panel">
+<section
+    class="auth-brand-panel"
+    aria-labelledby="auth-brand-title"
+>
 
     <div class="auth-brand">
 
@@ -67,7 +75,11 @@ HTML;
             D
         </div>
 
-        <h1>
+        <p class="auth-console-label">
+            Monitoring Console
+        </p>
+
+        <h1 id="auth-brand-title">
             DiGiT<br>
             Hosting Admin
         </h1>
@@ -108,13 +120,19 @@ HTML;
 
 </section>
 
-<section class="auth-form-panel">
+<section
+    class="auth-form-panel"
+    aria-labelledby="login-title"
+>
 
     <div class="auth-form-wrap">
 
-        <h2>เข้าสู่ระบบ</h2>
+        <h2 id="login-title">เข้าสู่ระบบ</h2>
 
-        <p class="auth-subtitle">
+        <p
+            class="auth-subtitle"
+            id="login-help"
+        >
             กรุณาเข้าสู่ระบบด้วยบัญชีผู้ดูแล
         </p>
 
@@ -124,6 +142,7 @@ HTML;
             method="post"
             action="/login"
             autocomplete="on"
+            aria-describedby="login-help"
         >
 
             <div class="form-field">
@@ -137,6 +156,7 @@ HTML;
                     id="username"
                     name="username"
                     type="text"
+                    aria-label="Username"
                     required
                     autofocus
                     autocomplete="username"
@@ -155,6 +175,7 @@ HTML;
                     id="password"
                     name="password"
                     type="password"
+                    aria-label="Password"
                     required
                     autocomplete="current-password"
                 >

@@ -10,6 +10,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const backdrop =
         document.querySelector('[data-sidebar-backdrop]');
 
+    let previousBodyOverflow = '';
+
     const openSidebar = () => {
         if (!sidebar) {
             return;
@@ -17,6 +19,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         sidebar.classList.add('is-open');
         backdrop?.classList.add('is-visible');
+
+        previousBodyOverflow = document.body.style.overflow;
         document.body.classList.add('sidebar-open');
 
         sidebarToggle?.setAttribute(
@@ -33,6 +37,8 @@ document.addEventListener('DOMContentLoaded', () => {
         sidebar.classList.remove('is-open');
         backdrop?.classList.remove('is-visible');
         document.body.classList.remove('sidebar-open');
+        document.body.style.overflow = previousBodyOverflow;
+        previousBodyOverflow = '';
 
         sidebarToggle?.setAttribute(
             'aria-expanded',
@@ -97,6 +103,11 @@ document.addEventListener('DOMContentLoaded', () => {
             'student-status-filter'
         );
 
+    const studentNoMatch =
+        document.querySelector(
+            '[data-student-no-match]'
+        );
+
     const filterStudents = () => {
         const query =
             studentSearch
@@ -111,39 +122,51 @@ document.addEventListener('DOMContentLoaded', () => {
                 .toLowerCase()
             ?? 'all';
 
-        document
-            .querySelectorAll(
-                '[data-student-row]'
-            )
-            .forEach(row => {
-                const rowText =
-                    row.textContent
-                        .toLowerCase();
+        const rows = document.querySelectorAll(
+            '[data-student-row]'
+        );
 
-                const rowStatus =
-                    (
-                        row.getAttribute(
-                            'data-status'
-                        )
-                        ?? ''
-                    ).toLowerCase();
+        let visibleRows = 0;
 
-                const matchesQuery =
-                    query === ''
-                    || rowText.includes(
-                        query
-                    );
+        rows.forEach(row => {
+            const rowText =
+                row.textContent
+                    .toLowerCase();
 
-                const matchesStatus =
-                    status === 'all'
-                    || rowStatus === status;
+            const rowStatus =
+                (
+                    row.getAttribute(
+                        'data-status'
+                    )
+                    ?? ''
+                ).toLowerCase();
 
-                row.hidden =
-                    !(
-                        matchesQuery
-                        && matchesStatus
-                    );
-            });
+            const matchesQuery =
+                query === ''
+                || rowText.includes(
+                    query
+                );
+
+            const matchesStatus =
+                status === 'all'
+                || rowStatus === status;
+
+            row.hidden =
+                !(
+                    matchesQuery
+                    && matchesStatus
+                );
+
+            if (!row.hidden) {
+                visibleRows++;
+            }
+        });
+
+        if (studentNoMatch) {
+            studentNoMatch.hidden =
+                rows.length === 0
+                || visibleRows > 0;
+        }
     };
 
     studentSearch?.addEventListener(
@@ -155,6 +178,55 @@ document.addEventListener('DOMContentLoaded', () => {
         'change',
         filterStudents
     );
+
+
+    const statusFeedback =
+        document.querySelector('[data-status-feedback]');
+
+    statusFeedback?.setAttribute(
+        'aria-live',
+        'polite'
+    );
+
+    const statusCopy =
+        statusFeedback?.querySelector('[data-status-copy]');
+
+    const defaultStatusText =
+        statusCopy?.textContent ?? '';
+
+    let statusFeedbackTimer = null;
+
+    document
+        .querySelectorAll('[data-refresh-status]')
+        .forEach(button => {
+            button.addEventListener(
+                'click',
+                () => {
+                    if (!statusFeedback || !statusCopy) {
+                        return;
+                    }
+
+                    if (statusFeedbackTimer !== null) {
+                        window.clearTimeout(
+                            statusFeedbackTimer
+                        );
+                    }
+
+                    statusCopy.textContent =
+                        'ตรวจสอบสถานะล่าสุดแล้ว';
+
+                    statusFeedbackTimer = window.setTimeout(
+                        () => {
+                            statusCopy.textContent =
+                                defaultStatusText;
+
+                            statusFeedbackTimer = null;
+                        },
+                        1600
+                    );
+                }
+            );
+        });
 
 
     document
@@ -178,6 +250,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     const originalText =
                         button.textContent;
 
+                    const feedback =
+                        button.parentElement?.querySelector(
+                            '[data-copy-feedback-message]'
+                        );
+
                     try {
                         await navigator
                             .clipboard
@@ -187,6 +264,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
                         button.textContent =
                             'คัดลอกแล้ว ✓';
+
+                        if (feedback) {
+                            feedback.textContent =
+                                'คัดลอกคำสั่งแล้ว';
+                        }
                     } catch (error) {
                         const textarea =
                             document.createElement(
@@ -216,12 +298,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
                         button.textContent =
                             'คัดลอกแล้ว ✓';
+
+                        if (feedback) {
+                            feedback.textContent =
+                                'คัดลอกคำสั่งแล้ว';
+                        }
                     }
 
                     window.setTimeout(
                         () => {
                             button.textContent =
                                 originalText;
+
+                            if (feedback) {
+                                feedback.textContent = '';
+                            }
                         },
                         1600
                     );
