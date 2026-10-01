@@ -94,3 +94,19 @@ assertTrueValue(
         '1024 MB'
     )
 );
+
+assertTrueValue(str_contains($html, 'id="student-search"'));
+assertTrueValue(str_contains($html, 'id="student-status-filter"'));
+assertTrueValue(str_contains($html, 'role="progressbar"'));
+assertTrueValue(str_contains($html, 'data-quota-used="20"'));
+assertTrueValue(str_contains($html, 'data-quota-soft="900"'));
+assertTrueValue(str_contains($html, 'data-quota-hard="1024"'));
+assertTrueValue(str_contains($html, 'data-student-no-match'));
+
+$emptyHtml = $controller->page(
+    ['display_name' => 'admin'],
+    []
+);
+
+assertTrueValue(str_contains($emptyHtml, 'data-students-empty'));
+assertTrueValue(str_contains($emptyHtml, 'colspan="11"'));

@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-09-30T12:00:00Z",
+  "overall_status": "HEALTHY",
+  "services": {
+    "nginx": true,
+    "php_fpm": true,
+    "mariadb": true
+  },
+  "storage": {
+    "root": {"used_percent": 24}
+  },
+  "summary": {
+    "students": 2,
+    "enabled": 2,
+    "suspended": 0,
+    "warnings": 0
+  },
+  "backup": {
+    "last_backup": "2026-09-30T11:30:00Z",
+    "size_bytes": 1048576
+  },
+  "students": [
+    {"student_id": "cs-001", "domain": "cs-001.example.test"},
+    {"student_id": "cs-002", "domain": "cs-002.example.test"}
+  ]
+}

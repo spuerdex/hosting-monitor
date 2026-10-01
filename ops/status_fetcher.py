@@ -5,20 +5,13 @@ import tempfile
 from pathlib import Path
 
 
-class StatusValidationError(ValueError):
-    pass
+from ops.status_contract import (
+    StatusContractError,
+    validate_status,
+)
 
 
-REQUIRED_KEYS = {
-    "schema_version",
-    "generated_at",
-    "overall_status",
-    "services",
-    "storage",
-    "summary",
-    "backup",
-    "students",
-}
+StatusValidationError = StatusContractError
 
 
 SSH_COMMAND = [
@@ -38,33 +31,6 @@ SSH_COMMAND = [
     "UserKnownHostsFile=/etc/digit-hosting-admin/ssh/known_hosts",
     "hostingportal@10.1.161.23",
 ]
-
-
-def validate_status(doc: dict) -> dict:
-    if not isinstance(doc, dict):
-        raise StatusValidationError(
-            "status document must be an object"
-        )
-
-    if doc.get("schema_version") != 1:
-        raise StatusValidationError(
-            "unsupported schema version"
-        )
-
-    missing = REQUIRED_KEYS - doc.keys()
-
-    if missing:
-        raise StatusValidationError(
-            "missing required keys: "
-            + ", ".join(sorted(missing))
-        )
-
-    if not isinstance(doc["students"], list):
-        raise StatusValidationError(
-            "students must be a list"
-        )
-
-    return doc
 
 
 def write_atomic(

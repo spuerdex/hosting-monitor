@@ -6,6 +6,8 @@
 /storage/logs/*
 !/storage/logs/.gitkeep
 
+/.local-cache/*
+
 # aaPanel managed
 /.htaccess
 /public/.user.ini
@@ -14,3 +16,6 @@
 # Python cache
 __pycache__/
 *.py[cod]
+
+# Superpowers implementation workspaces
+/.superpowers/sdd/

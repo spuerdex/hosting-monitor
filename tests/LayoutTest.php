@@ -38,3 +38,67 @@ assertTrueValue(
 assertTrueValue(
     str_contains($html, 'Faculty of Digital Technology')
 );
+
+assertTrueValue(
+    str_contains($html, 'Monitoring Portal')
+);
+
+assertTrueValue(
+    str_contains($html, 'data-refresh-status')
+);
+
+assertTrueValue(
+    str_contains($html, 'data-status-feedback')
+);
+
+assertTrueValue(
+    str_contains($html, 'data-status-copy')
+);
+
+assertTrueValue(
+    str_contains($html, 'aria-live="polite"')
+);
+
+assertTrueValue(
+    str_contains($html, 'Online · Read-only Monitoring')
+);
+
+assertTrueValue(
+    str_contains($html, 'aria-label="ตรวจสอบสถานะล่าสุด"')
+);
+
+assertTrueValue(
+    str_contains($html, 'sidebar-status')
+);
+
+assertTrueValue(
+    str_contains($html, 'aria-expanded="false"')
+);
+
+assertTrueValue(
+    str_contains($html, 'type="button"')
+);
+
+assertTrueValue(
+    str_contains($html, 'data-monitoring-context')
+);
+
+assertTrueValue(
+    str_contains($html, 'data-host-count')
+);
+
+assertTrueValue(
+    str_contains($html, 'data-monitoring-status')
+);
+
+assertTrueValue(
+    str_contains($html, 'data-last-refresh')
+);
+
+assertTrueValue(
+    str_contains($html, 'aria-controls="primary-navigation"')
+);
+
+assertTrueValue(
+    str_contains($html, 'id="primary-navigation"')
+);

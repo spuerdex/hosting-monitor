@@ -18,6 +18,18 @@ final class StudentsController
         $suspendedCount = 0;
 
         foreach ($students as $student) {
+            $hostCode = htmlspecialchars(
+                (string) ($student['host_code'] ?? 'local'),
+                ENT_QUOTES,
+                'UTF-8'
+            );
+
+            $hostName = htmlspecialchars(
+                (string) ($student['host_name'] ?? 'Current Host'),
+                ENT_QUOTES,
+                'UTF-8'
+            );
+
             $id = htmlspecialchars(
                 (string)(
                     $student['student_id']
@@ -27,20 +39,20 @@ final class StudentsController
                 'UTF-8'
             );
 
-            $domain = htmlspecialchars(
-                (string)(
-                    $student['domain']
-                    ?? ''
-                ),
-                ENT_QUOTES,
-                'UTF-8'
-            );
+            $domainRaw = (string) ($student['domain'] ?? '');
+            $domainCell = $this->domainCell($domainRaw);
 
             $status = strtolower(
                 (string)(
                     $student['status']
                     ?? 'unknown'
                 )
+            );
+
+            $statusAttr = htmlspecialchars(
+                $status,
+                ENT_QUOTES | ENT_SUBSTITUTE,
+                'UTF-8'
             );
 
             if ($status === 'enabled') {
@@ -127,41 +139,44 @@ final class StudentsController
                     )
                 );
 
+            $quotaProgress = $this->quotaProgress(
+                $used,
+                $soft,
+                $hard
+            );
+
             $rows .= <<<HTML
 <tr
     data-student-row
-    data-status="{$status}"
+    data-status="{$statusAttr}"
 >
 
-<td class="student-id">
+<td data-label="Host" data-host-label>
+{$hostName} ({$hostCode})
+</td>
+
+<td data-label="Student ID" class="student-id">
 {$id}
 </td>
 
-<td>
-<a
-    class="student-domain"
-    href="https://{$domain}"
-    target="_blank"
-    rel="noopener noreferrer"
->
-{$domain}
-</a>
+<td data-label="Domain">
+{$domainCell}
 </td>
 
-<td>
+<td data-label="Status">
 <span class="status-pill {$statusClass}">
 {$statusLabel}
 </span>
 </td>
 
-<td>{$used} MB</td>
-<td>{$soft} MB</td>
-<td>{$hard} MB</td>
+<td data-label="Quota" class="student-quota" colspan="3">
+{$quotaProgress}
+</td>
 
-<td>{$php}</td>
-<td>{$nginx}</td>
-<td>{$database}</td>
-<td>{$credential}</td>
+<td data-label="PHP">{$php}</td>
+<td data-label="Nginx">{$nginx}</td>
+<td data-label="DB">{$database}</td>
+<td data-label="Credential">{$credential}</td>
 
 </tr>
 HTML;
@@ -171,8 +186,9 @@ HTML;
             $rows = <<<HTML
 <tr>
 <td
-    colspan="10"
+    colspan="11"
     class="empty"
+    data-students-empty
 >
 ยังไม่มีข้อมูลนักศึกษา
 </td>
@@ -269,12 +285,11 @@ HTML;
 
 <thead>
 <tr>
+    <th>Host</th>
     <th>Student ID</th>
     <th>Domain</th>
     <th>Status</th>
-    <th>Used</th>
-    <th>Soft</th>
-    <th>Hard</th>
+    <th colspan="3">Quota</th>
     <th>PHP</th>
     <th>Nginx</th>
     <th>DB</th>
@@ -287,6 +302,10 @@ HTML;
 </tbody>
 
 </table>
+
+<p class="student-no-match" data-student-no-match hidden>
+    ไม่พบ Account ที่ตรงกับเงื่อนไขการค้นหา
+</p>
 
 </div>
 
@@ -476,31 +495,12 @@ HTML;
                     (bool) ($student['credential_exists'] ?? false)
                 );
 
-                $domainCell = $domain;
-
-                if (
-                    $domainRaw !== ''
-                    && preg_match(
-                        '/^[A-Za-z0-9.-]+$/D',
-                        $domainRaw
-                    ) === 1
-                    && !str_contains($domainRaw, '..')
-                ) {
-                    $href = htmlspecialchars(
-                        'https://' . $domainRaw,
-                        ENT_QUOTES,
-                        'UTF-8'
-                    );
-
-                    $domainCell = <<<HTML
-<a
-    class="student-domain"
-    href="{$href}"
-    target="_blank"
-    rel="noopener noreferrer"
->{$domain}</a>
-HTML;
-                }
+                $quotaProgress = $this->quotaProgress(
+                    $used,
+                    $soft,
+                    $hard
+                );
+                $domainCell = $this->domainCell($domainRaw);
 
                 $rows .= <<<HTML
 <tr
@@ -508,22 +508,20 @@ HTML;
     data-status="{$statusAttr}"
     data-host="{$hostCodeSafe}"
 >
-<td>{$hostName} ({$hostCodeSafe})</td>
-<td class="student-id">{$id}</td>
-<td>{$username}</td>
-<td>{$domainCell}</td>
-<td>
+<td data-label="Host" data-host-label>{$hostName} ({$hostCodeSafe})</td>
+<td data-label="Student ID" class="student-id">{$id}</td>
+<td data-label="Username">{$username}</td>
+<td data-label="Domain">{$domainCell}</td>
+<td data-label="Status">
 <span class="status-pill {$statusClass}">
 {$statusLabel}
 </span>
 </td>
-<td>{$used} MB</td>
-<td>{$soft} MB</td>
-<td>{$hard} MB</td>
-<td>{$php}</td>
-<td>{$nginx}</td>
-<td>{$database}</td>
-<td>{$credential}</td>
+<td data-label="Quota" class="student-quota" colspan="3">{$quotaProgress}</td>
+<td data-label="PHP">{$php}</td>
+<td data-label="Nginx">{$nginx}</td>
+<td data-label="DB">{$database}</td>
+<td data-label="Credential">{$credential}</td>
 </tr>
 HTML;
             }
@@ -532,7 +530,7 @@ HTML;
         if ($rows === '') {
             $rows = <<<HTML
 <tr>
-<td colspan="12" class="empty">
+<td colspan="12" class="empty" data-students-empty>
 ยังไม่มีข้อมูล Account ที่พร้อมใช้งาน
 </td>
 </tr>
@@ -644,9 +642,7 @@ HTML;
     <th>Username</th>
     <th>Domain</th>
     <th>Status</th>
-    <th>Used</th>
-    <th>Soft</th>
-    <th>Hard</th>
+    <th colspan="3">Quota</th>
     <th>PHP</th>
     <th>Nginx</th>
     <th>DB</th>
@@ -657,6 +653,10 @@ HTML;
 {$rows}
 </tbody>
 </table>
+
+<p class="student-no-match" data-student-no-match hidden>
+    ไม่พบ Account ที่ตรงกับเงื่อนไขการค้นหา
+</p>
 </div>
 
 </section>
@@ -668,6 +668,78 @@ HTML;
             content: $content,
             user: $user
         );
+    }
+
+    private function domainCell(string $domainRaw): string
+    {
+        $domain = htmlspecialchars(
+            $domainRaw,
+            ENT_QUOTES,
+            'UTF-8'
+        );
+
+        if (
+            $domainRaw === ''
+            || preg_match('/^[A-Za-z0-9.-]+$/D', $domainRaw) !== 1
+            || str_contains($domainRaw, '..')
+        ) {
+            return $domain;
+        }
+
+        $href = htmlspecialchars(
+            'https://' . $domainRaw,
+            ENT_QUOTES,
+            'UTF-8'
+        );
+
+        return <<<HTML
+<a
+    class="student-domain"
+    href="{$href}"
+    target="_blank"
+    rel="noopener noreferrer"
+>{$domain}</a>
+HTML;
+    }
+
+    private function quotaProgress(
+        int $used,
+        int $soft,
+        int $hard
+    ): string {
+        $maximum = max(0, $hard);
+        $usedLabel = max(0, $used);
+        $value = min($usedLabel, $maximum);
+        $softLabel = max(0, $soft);
+        $hardLabel = max(0, $hard);
+        $percent = $maximum > 0
+            ? (int) round(($value / $maximum) * 100)
+            : 0;
+
+        return <<<HTML
+<div
+    class="quota-progress"
+    data-quota-progress
+    data-quota-used="{$usedLabel}"
+    data-quota-soft="{$softLabel}"
+    data-quota-hard="{$hardLabel}"
+    role="progressbar"
+    aria-valuemin="0"
+    aria-valuemax="{$hardLabel}"
+    aria-valuenow="{$value}"
+    aria-label="Quota used {$usedLabel} MB of {$hardLabel} MB"
+>
+    <span class="quota-progress-label">
+        {$usedLabel} MB used · {$softLabel} MB soft · {$hardLabel} MB hard
+    </span>
+    <span class="quota-progress-track" aria-hidden="true">
+        <span
+            class="quota-progress-fill"
+            style="width: {$percent}%"
+        ></span>
+    </span>
+</div>
+HTML;
     }
 
     private function healthBadge(

@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-09-30T12:00:00Z",
+  "overall_status": "WARNING",
+  "services": {
+    "nginx": true,
+    "php_fpm": true,
+    "mariadb": false
+  },
+  "storage": {
+    "root": {"used_percent": 78}
+  },
+  "summary": {
+    "students": 1,
+    "enabled": 1,
+    "suspended": 0,
+    "warnings": 1
+  },
+  "backup": {
+    "last_backup": "2026-09-29T11:30:00Z",
+    "size_bytes": 2097152
+  },
+  "students": [
+    {"student_id": "it-001", "domain": "it-001.example.test"}
+  ]
+}

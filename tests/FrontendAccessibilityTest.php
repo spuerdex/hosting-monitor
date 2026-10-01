@@ -1,0 +1,120 @@
+<?php
+
+declare(strict_types=1);
+
+use Digit\HostingAdmin\Views\Layout;
+
+$html = Layout::render(
+    title: 'Accessibility Test',
+    active: 'dashboard',
+    content: '<p>Test</p>',
+    user: ['display_name' => 'admin']
+);
+
+$cssFile = dirname(__DIR__)
+    . '/public/assets/css/app.css';
+
+$jsFile = dirname(__DIR__)
+    . '/public/assets/js/app.js';
+
+$css = file_get_contents($cssFile);
+$js = file_get_contents($jsFile);
+
+foreach ([
+    '--background',
+    '--sidebar',
+    '--surface',
+    '--border',
+    '--text',
+    '--success',
+    '--warning',
+    '--danger',
+    '--space-1',
+    '--radius-sm',
+    '--shadow-sm',
+] as $token) {
+    assertTrueValue(
+        str_contains($css, $token),
+        'missing design token: ' . $token
+    );
+}
+
+assertTrueValue(
+    str_contains($css, ':focus-visible')
+);
+
+assertTrueValue(
+    str_contains($css, 'prefers-reduced-motion: reduce')
+);
+
+assertTrueValue(
+    str_contains($css, 'status-success')
+);
+
+assertTrueValue(
+    str_contains($css, 'status-warning')
+);
+
+assertTrueValue(
+    str_contains($css, 'status-danger')
+);
+
+assertTrueValue(
+    str_contains($js, 'data-refresh-status')
+);
+
+assertTrueValue(
+    str_contains($js, 'data-status-feedback')
+);
+
+assertTrueValue(
+    str_contains($js, 'aria-live')
+);
+
+assertTrueValue(
+    str_contains($js, 'data-status-copy')
+);
+
+assertTrueValue(
+    str_contains($js, 'statusCopy.textContent')
+);
+
+assertTrueValue(
+    !str_contains($js, 'statusFeedback.textContent =')
+);
+
+assertTrueValue(
+    str_contains($html, 'Online · Read-only Monitoring')
+);
+
+assertTrueValue(
+    str_contains($html, 'data-status-feedback')
+);
+
+assertTrueValue(
+    str_contains($html, 'data-status-copy')
+);
+
+assertTrueValue(
+    str_contains($html, 'aria-live="polite"')
+);
+
+assertTrueValue(
+    str_contains($html, 'aria-label="ตรวจสอบสถานะล่าสุด"')
+);
+
+assertTrueValue(
+    str_contains($js, 'previousBodyOverflow')
+);
+
+assertTrueValue(
+    str_contains($js, 'event.key === \'Escape\'')
+);
+
+assertTrueValue(
+    str_contains($js, 'backdrop?.addEventListener')
+);
+
+assertTrueValue(
+    str_contains($css, 'overflow-x: hidden')
+);

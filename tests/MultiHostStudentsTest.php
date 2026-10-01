@@ -60,6 +60,19 @@ assertTrueValue(str_contains($html, 'Username'));
 assertTrueValue(str_contains($html, 'Computer Science'));
 assertTrueValue(str_contains($html, 'Information Technology'));
 assertTrueValue(str_contains($html, 's69001'));
+assertSameValue(2, substr_count($html, 'data-host-label'));
+assertTrueValue(str_contains($html, 'data-quota-progress'));
+assertTrueValue(str_contains($html, 'aria-valuenow="2"'));
+assertTrueValue(str_contains($html, 'data-student-no-match'));
+
+$emptyHtml = $controller->monitoringPage(
+    ['display_name' => 'admin'],
+    [],
+    'all'
+);
+
+assertTrueValue(str_contains($emptyHtml, 'data-students-empty'));
+assertTrueValue(str_contains($emptyHtml, 'colspan="12"'));
 
 // Filtering by CS must exclude IT accounts.
 $csHtml = $controller->monitoringPage(

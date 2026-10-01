@@ -5,7 +5,8 @@ from pathlib import Path
 from typing import Callable
 
 from ops.host_registry import load_registry
-from ops.status_fetcher import validate_status, write_atomic
+from ops.status_contract import normalize_status, validate_status
+from ops.status_fetcher import write_atomic
 MAX_STATUS_BYTES = 1024 * 1024
 
 def fetch_all(
@@ -48,7 +49,11 @@ def fetch_all(
             if payload_bytes > MAX_STATUS_BYTES:
                 raise ValueError("status payload too large")
 
-            validated = validate_status(document)
+            validated = (
+                normalize_status(document, host)
+                if "base_url" in host
+                else validate_status(document)
+            )
 
             # Reject unknown status before publishing cache.
             if validated.get("overall_status") not in (

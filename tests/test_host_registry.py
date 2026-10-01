@@ -51,12 +51,31 @@ class HostRegistryTests(unittest.TestCase):
 
     def test_reject_invalid_schema_version(self):
         registry = {
-            "schema_version": 2,
+            "schema_version": 3,
             "hosts": []
         }
 
         with self.assertRaises(host_registry.RegistryError):
             self._load_document(registry)
+
+    def test_load_api_registry_v2(self):
+        registry = {
+            "schema_version": 2,
+            "hosts": [
+                {
+                    "code": "cs",
+                    "name": "Computer Science",
+                    "base_url": "https://cs.example/api",
+                    "enabled": True,
+                    "timeout_seconds": 10,
+                    "api_token_env": "CS_API_TOKEN",
+                }
+            ],
+        }
+
+        hosts = self._load_document(registry)
+
+        self.assertEqual(hosts[0]["base_url"], "https://cs.example/api")
 
     def test_reject_duplicate_host_code(self):
         host = {

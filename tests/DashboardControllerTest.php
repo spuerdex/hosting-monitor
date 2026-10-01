@@ -35,3 +35,4 @@ assertTrueValue(str_contains($html, 'HEALTHY'));
 assertTrueValue(str_contains($html, '10'));
 assertTrueValue(str_contains($html, 'Suspended'));
 assertTrueValue(str_contains($html, 'Last Backup'));
+assertTrueValue(str_contains($html, 'Read-only Monitoring'));

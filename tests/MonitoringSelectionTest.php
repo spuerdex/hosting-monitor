@@ -37,6 +37,8 @@ $overview = $controller->monitoringPage($user, $hosts, null);
 assertTrueValue(str_contains($overview, 'Monitoring Overview'));
 assertTrueValue(str_contains($overview, 'Computer Science'));
 assertTrueValue(str_contains($overview, 'Information Technology'));
+assertTrueValue(str_contains($overview, 'data-host-health-matrix'));
+assertTrueValue(str_contains($overview, 'href="/dashboard?host=cs"'));
 
 // Known host: show only its detail page.
 $detail = $controller->monitoringPage($user, $hosts, 'cs');

@@ -6,7 +6,7 @@ import os
 import select
 import time
 
-from ops.status_fetcher import validate_status
+from ops.status_contract import validate_status
 MAX_STATUS_BYTES = 1024 * 1024
 CHUNK_SIZE = 64 * 1024
 
